@@ -1,7 +1,3 @@
-/*
-* Multiplayer Snakes game - Server
-* Luke Collins
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,8 +87,7 @@ void kill_snake(snake* s){
 
     //Set all snake coordinates to zero on map
     pthread_mutex_lock(&map_lock);
-    game_map[s->head.y][s->head.x] = 
-    game_map[s->tail.y][s->tail.x] = 0;    
+    game_map[s->head.y][s->head.x] = game_map[s->tail.y][s->tail.x] = 0;    
     int i;
     for(i = 0; i < s->length - 2; i++)
         game_map[s->body_segment[i].y][s->body_segment[i].x] = 0;
@@ -240,7 +235,7 @@ void* gameplay(void* arg){
     //Determine player number from file descriptor argument
     int fd = *(int*) arg;
     int player_no = fd-3;
-    printf("Dahal plejer numru %d!\n", player_no);
+    printf("Player %d had connected!\n", player_no);
 
     //Find three consecutive zeros in map for starting snake position
     int head_y, head_x;
@@ -248,9 +243,7 @@ void* gameplay(void* arg){
     do{
         head_y = rand() % (HEIGHT - 6) + 3;
         head_x = rand() % (WIDTH - 6) + 3;
-    } while (!(
-        ((game_map[head_y][head_x] == game_map[head_y+1][head_x]) 
-            == game_map[head_y+2][head_x]) == 0));
+    } while (!(((game_map[head_y][head_x] == game_map[head_y+1][head_x]) == game_map[head_y+2][head_x]) == 0));
 
     //Create snake structure
     snake* player_snake = make_snake(player_no, head_y, head_x);

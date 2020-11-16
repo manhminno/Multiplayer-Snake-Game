@@ -1,8 +1,3 @@
-/*
-* Multiplayer Snakes game - Client
-* Luke Collins
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -92,7 +87,7 @@ void* update_screen(void* arg){
         memcpy(game_map, map_buffer, map_size);
 
         clear();
-        box(win, '+', '+');
+        box(win, 0, 0);
         refresh();
         wrefresh(win);
 
@@ -137,8 +132,8 @@ int main(int argc, char *argv[]){
     char                key_buffer;
 
     if (argc < 2){
-    fprintf(stderr,"Please type:\n\t %s [server ip]\n to launch the game.\n", argv[0]);
-    exit(0);
+        fprintf(stderr,"Please type: %s [server ip] to launch the game.\n", argv[0]);
+        exit(0);
     }    
 
     //Getting socket descriptor 
@@ -156,9 +151,7 @@ int main(int argc, char *argv[]){
     //Sets first n bytes of the area to zero    
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, 
-        (char *)&serv_addr.sin_addr.s_addr,
-        server->h_length);
+    bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
         
     //Converting unsigned short integer from host byte order to network byte order. 
     serv_addr.sin_port = htons(PORT);
@@ -219,10 +212,7 @@ int main(int argc, char *argv[]){
         if(key_buffer == '.'){
             game_result = INTERRUPTED;
             break;
-        } else if((key_buffer == UP_KEY) 
-            || (key_buffer == DOWN_KEY) 
-            || (key_buffer == LEFT_KEY) 
-            || (key_buffer == RIGHT_KEY))
+        } else if((key_buffer == UP_KEY) || (key_buffer == DOWN_KEY) || (key_buffer == LEFT_KEY) || (key_buffer == RIGHT_KEY))
             key = key_buffer;
     }
 
