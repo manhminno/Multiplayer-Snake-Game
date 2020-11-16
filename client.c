@@ -1,7 +1,7 @@
 /*
- * Multiplayer Snakes game - Client
- * Luke Collins
- */
+* Multiplayer Snakes game - Client
+* Luke Collins
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,8 +65,8 @@ void* write_to_server(void* arg){
         nanosleep(&ts, NULL);
         int n = write(sockfd, &key, 1);
         if(n < 0) 
-             error("ERROR writing to socket.");
-     }
+            error("ERROR writing to socket.");
+    }
     return 0;
 }
 
@@ -137,15 +137,15 @@ int main(int argc, char *argv[]){
     char                key_buffer;
 
     if (argc < 2){
-       fprintf(stderr,"Please type:\n\t %s [server ip]\n to launch the game.\n", argv[0]);
-       exit(0);
+    fprintf(stderr,"Please type:\n\t %s [server ip]\n to launch the game.\n", argv[0]);
+    exit(0);
     }    
-  
+
     //Getting socket descriptor 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) 
         error("ERROR opening socket");
-     
+    
     //Resolving host name
     server = gethostbyname(argv[1]);
     if (server == NULL) {
@@ -157,9 +157,9 @@ int main(int argc, char *argv[]){
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     bcopy((char *)server->h_addr, 
-         (char *)&serv_addr.sin_addr.s_addr,
-         server->h_length);
-         
+        (char *)&serv_addr.sin_addr.s_addr,
+        server->h_length);
+        
     //Converting unsigned short integer from host byte order to network byte order. 
     serv_addr.sin_port = htons(PORT);
     
@@ -220,12 +220,12 @@ int main(int argc, char *argv[]){
             game_result = INTERRUPTED;
             break;
         } else if((key_buffer == UP_KEY) 
-               || (key_buffer == DOWN_KEY) 
-               || (key_buffer == LEFT_KEY) 
-               || (key_buffer == RIGHT_KEY))
+            || (key_buffer == DOWN_KEY) 
+            || (key_buffer == LEFT_KEY) 
+            || (key_buffer == RIGHT_KEY))
             key = key_buffer;
     }
-  
+
     //Show the user who won
     WINDOW* announcement = newwin(7, 35, (HEIGHT - 7)/2, (WIDTH - 35)/2);
     box(announcement, 0, 0);

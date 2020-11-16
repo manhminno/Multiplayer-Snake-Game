@@ -1,7 +1,7 @@
 /*
- * Multiplayer Snakes game - Server
- * Luke Collins
- */
+* Multiplayer Snakes game - Server
+* Luke Collins
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -297,9 +297,9 @@ void* gameplay(void* arg){
         //If user key is a direction, then apply it
         key_buffer = toupper(key_buffer);   
         if(  ((key_buffer == UP)    && !(player_snake->head.d == DOWN))
-           ||((key_buffer == DOWN)  && !(player_snake->head.d == UP))
-           ||((key_buffer == LEFT)  && !(player_snake->head.d == RIGHT)) 
-           ||((key_buffer == RIGHT) && !(player_snake->head.d == LEFT)))
+        ||((key_buffer == DOWN)  && !(player_snake->head.d == UP))
+        ||((key_buffer == LEFT)  && !(player_snake->head.d == RIGHT)) 
+        ||((key_buffer == RIGHT) && !(player_snake->head.d == LEFT)))
             key = key_buffer;
 
         switch(key){
@@ -393,20 +393,20 @@ void* gameplay(void* arg){
 
 //Main function
 int main(){
-     int                socket_fds[MAX_PLAYERS];     
-     struct sockaddr_in socket_addr[MAX_PLAYERS];
-     int                i;
+    int                socket_fds[MAX_PLAYERS];     
+    struct sockaddr_in socket_addr[MAX_PLAYERS];
+    int                i;
 
-     //Handle Ctrl+C
-     signal(SIGINT, ctrl_c_handler);
+    //Handle Ctrl+C
+    signal(SIGINT, ctrl_c_handler);
 
-     //Fill gamestate matrix with zeros
-     memset(game_map, 0, map_size);
+    //Fill gamestate matrix with zeros
+    memset(game_map, 0, map_size);
     
-     //Set game borders
-     for(i = 0; i < HEIGHT; i++)
+    //Set game borders
+    for(i = 0; i < HEIGHT; i++)
         game_map[i][0] = game_map[i][WIDTH-2] = BORDER;     
-     for(i = 0; i < WIDTH; i++)
+    for(i = 0; i < WIDTH; i++)
         game_map[0][i] = game_map[HEIGHT-1][i] = BORDER;
 
     //Randomly add five fruit
@@ -414,43 +414,43 @@ int main(){
     for(i = 0; i < 3; i++)
         add_fruit();
 
-     //Create server socket
-     socket_fds[0] = socket(AF_INET, SOCK_STREAM, 0);
-     if (socket_fds[0] < 0) 
+    //Create server socket
+    socket_fds[0] = socket(AF_INET, SOCK_STREAM, 0);
+    if (socket_fds[0] < 0) 
         error("ERROR opening socket");
         
-     //Set socket address to zero and set attributes
-     bzero((char *) &socket_addr[0], sizeof(socket_addr[0]));  
-     socket_addr[0].sin_family = AF_INET;
-     socket_addr[0].sin_addr.s_addr = INADDR_ANY;
-     //Converting unsigned short integer from host byte order to network byte order. 
-     socket_addr[0].sin_port = htons(PORT);
-     
-     //Assigning address specified by addr to the socket referred by the server socket fd
-     if (bind(socket_fds[0], (struct sockaddr *) &socket_addr[0], sizeof(socket_addr[0])) < 0) 
-              error("ERROR on binding");
+    //Set socket address to zero and set attributes
+    bzero((char *) &socket_addr[0], sizeof(socket_addr[0]));  
+    socket_addr[0].sin_family = AF_INET;
+    socket_addr[0].sin_addr.s_addr = INADDR_ANY;
+    //Converting unsigned short integer from host byte order to network byte order. 
+    socket_addr[0].sin_port = htons(PORT);
+    
+    //Assigning address specified by addr to the socket referred by the server socket fd
+    if (bind(socket_fds[0], (struct sockaddr *) &socket_addr[0], sizeof(socket_addr[0])) < 0) 
+            error("ERROR on binding");
 
     //Marking socket as a socket that will be used to accept incoming connection requests  
     listen(socket_fds[0], 5);
     socklen_t clilen = sizeof(socket_addr[0]);
 
-     for(i = 1;; i++){
+    for(i = 1;; i++){
         
-         //Accepting an incoming connection request
-         socket_fds[i] = accept(socket_fds[0], (struct sockaddr *) &socket_addr[i], &clilen);
-         if (socket_fds[i] < 0) 
-              error("ERROR on accept");
+        //Accepting an incoming connection request
+        socket_fds[i] = accept(socket_fds[0], (struct sockaddr *) &socket_addr[i], &clilen);
+        if (socket_fds[i] < 0) 
+            error("ERROR on accept");
 
-         //Reset game if someone won
-         if(someone_won){
+        //Reset game if someone won
+        if(someone_won){
             printf("Il-logħba ġiet irrisettjata!\n");
             someone_won = 0;
         }
 
-         make_thread(&gameplay, &socket_fds[i]); 
-     }
-     
-     //Closing the server socket
-     close(socket_fds[0]);  
-     return 0; 
+        make_thread(&gameplay, &socket_fds[i]); 
+    }
+    
+    //Closing the server socket
+    close(socket_fds[0]);  
+    return 0; 
 }
