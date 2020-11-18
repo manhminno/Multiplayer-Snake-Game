@@ -516,26 +516,7 @@ int main(){
     listen(socket_fds[0], 5);
     socklen_t clilen = sizeof(socket_addr[0]);
 
-    // accept(socket_fds[0],(struct sockaddr *) &socket_addr[0],  &clilen);
-    // int login = 0;
-    // while(login == 0){
-    //     List l;
-    //     InitList(&l);
-    //     readFile("nguoidung.txt", &l);
-    //     int bytes_received;
-    //     char recv_data[256];
-    //     bytes_received = recv(socket_fds[0], recv_data, 256-1, 0); //blocking
-    //     recv_data[bytes_received] = '\0';
-
-    //     printf("Receive from client: %s\n", recv_data);
-    //     int check = loginUser_server("nguoidung.txt", &l, socket_fds[i]);
-    //     if(check == 0) return 0;
-    //     login = 1;
-    // }
-
-
     for(i = 1;; i++){
-        
         //Accepting an incoming connection request
         socket_fds[i] = accept(socket_fds[0], (struct sockaddr *) &socket_addr[i], &clilen);
         if (socket_fds[i] < 0) 

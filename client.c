@@ -308,6 +308,9 @@ int main(int argc, char *argv[]){
         error("ERROR connecting");
     
     sign_to_server(sockfd);
+
+    
+
     //Create Ncurses Window, with input, no echo and hidden cursor
     initscr();      
     cbreak();
@@ -318,17 +321,6 @@ int main(int argc, char *argv[]){
 
     //Set window to new ncurses window
     win = newwin(HEIGHT, WIDTH, 0, 0);
-
-    // while(1){
-	// 	printf("\nLogin and change password!\n");
-    //     char buff[10];
-	// 	//Send params = login
-	// 	strcpy(buff, "login");
-    //     send(sockfd, "login", 5, 0);
-    //     return 0;
-    // }
-
-    // make_thread(sign_to_server, &sockfd);
 
     //Snake colours
     init_pair(0, COLOR_WHITE, COLOR_BLUE);
