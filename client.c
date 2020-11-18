@@ -91,7 +91,7 @@ char *showRoom(char room[]){
     token = strtok(NULL, space);
     while(token != NULL){
         strcpy(tmp, token);
-        printf("[No %d]. %s\n", i, tmp);
+        printf(">[No %d]. %s\n", i, tmp);
         i++;
         token = strtok(NULL, space);
     }
@@ -99,6 +99,7 @@ char *showRoom(char room[]){
     printf(" Waiting-room will be updated every 5 seconds!\n");
     return main_player;
 }
+
 void sign_to_server(int sockfd){
     char test[256];
     char choice[2];
@@ -144,7 +145,7 @@ void sign_to_server(int sockfd){
                 write(sockfd, usename, 256);
                 read(sockfd, &test, 10);
                 if(strcmp(test, "NotOK") == 0){
-                    printf("Sai ten dang nhap!\n");
+                    printf("Error! Wrong username!\n");
                     break;
                 }else{
                     strcpy(tmp, usename);

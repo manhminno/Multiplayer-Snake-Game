@@ -319,7 +319,7 @@ void* gameplay(void* arg){
                 }
             }
         }
-        break;
+        // break;
     }
 
     //Determine player number from file descriptor argument
