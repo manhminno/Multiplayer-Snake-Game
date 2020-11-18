@@ -230,6 +230,10 @@ void ctrl_c_handler(){
     exit(0);
 }
 
+char room[256];
+int start = 0;
+int t1 = 5;
+int t2 = 5;
 //Thread gameplay function
 void* gameplay(void* arg){ 
     char usename[256];
@@ -282,14 +286,43 @@ void* gameplay(void* arg){
                     password[xxx] = '\0';
                 }
                 write(fd, "OKchoi", 256);
-                break;
+                // break;
+                read(fd, &recv_data, 2);
+                recv_data[xxx] = '\0';
+                if(strcmp(recv_data, "1") == 0){
+                    strcat(room, "_");
+                    strcat(room, usename);
+                    // printf("%s\n", room);
+                    // read(fd, &recv_data, 2);
+                    while(1){
+                        read(fd, &recv_data, 256);
+                        // printf("nhan %s\n",recv_data);
+                        if(strcmp(recv_data, "S") == 0){
+                            strcpy(recv_data, "start");
+                            write(fd, recv_data, 256);
+                            start = 1;
+                            strcpy(room, "");
+                            sleep(t2);
+                            break;
+                        }
+                        if(start == 1){
+                            t1 = 0;
+                            strcpy(recv_data, "start");
+                            write(fd, recv_data, 256);
+                            break;
+                        }
+                        write(fd, room, 256);
+                        // start = 1;
+                        sleep(t1);
+                    }
+                    break;
+                }
             }
         }
+        break;
     }
 
-
     //Determine player number from file descriptor argument
-    // int fd = *(int*) arg; -----------------------------------------------------------
     int player_no = fd-3;
     printf("Player %d had connected!\n", player_no);
 

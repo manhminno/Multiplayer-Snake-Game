@@ -11,7 +11,7 @@
 #include <netinet/in.h>
 #include <netdb.h> 
 #include <stdio_ext.h>
-
+#include "process.h"
 
 #define BUFF_SIZE 255
 #define PORT        7070
@@ -61,12 +61,35 @@ void Menu(){
     printf("2. Sign in\n");
 }
 
-
+char *showRoom(char room[]){
+    const char space[2] = "_";
+    char *token;
+    char tmp[256];
+    int i = 1;
+    char *main_player;
+    token = strtok(room, space);
+    main_player = token;
+    strcpy(tmp, token);
+    printf("%d. %s\n", i, tmp);
+    i++;
+    token = strtok(NULL, space);
+    while(token != NULL){
+        strcpy(tmp, token);
+        printf("%d. %s\n", i, tmp);
+        i++;
+        token = strtok(NULL, space);
+    }
+    return main_player;
+}
 void sign_to_server(int sockfd){
-    char test[12];
+    char test[256];
     char choice[2];
-    char username[256];
+    char usename[256];
     char password[256];
+    char tmp[256];
+    // List l;
+    // InitList(&l);
+    // User *p;
     while(1){
         Menu();
         printf("Chon chuc nang: ");
@@ -75,14 +98,14 @@ void sign_to_server(int sockfd){
         // test = choice - '0';
         // printf("%s\n", test);
         int check = choice[0] - '0';
-        int send = write(sockfd, choice, 2);
+        write(sockfd, choice, 2);
         switch (check){
             case 1:
                 printf("Dang ky tai khoan:---------------------\n");
                 printf("Ten dang nhap: ");
                 __fpurge(stdin);
-                gets(username);
-                write(sockfd, username, 256);
+                gets(usename);
+                write(sockfd, usename, 256);
                 read(sockfd, &test, 10);
                 if(strcmp(test, "NotOK") == 0){
                     printf("Ten dang nhap da ton tai!\n");
@@ -98,13 +121,14 @@ void sign_to_server(int sockfd){
                 printf("Dang nhap tai khoan:---------------------\n");
                 printf("Ten dang nhap: ");
                 __fpurge(stdin);
-                gets(username);
-                write(sockfd, username, 256);
+                gets(usename);
+                write(sockfd, usename, 256);
                 read(sockfd, &test, 10);
                 if(strcmp(test, "NotOK") == 0){
                     printf("Sai ten dang nhap!\n");
                     break;
                 }else{
+                    strcpy(tmp, usename);
                     printf("Mat khau: ");
                     __fpurge(stdin);
                     gets(password);
@@ -116,8 +140,47 @@ void sign_to_server(int sockfd){
                         __fpurge(stdin);
                         gets(password);
                         write(sockfd, password, 256);
+                        read(sockfd, &test, 256);
                     }
-                    return;
+                    printf("Dang nhap thanh cong!\n");
+                    printf("1. Tham gia phong cho!\n");
+                    printf("2. Doi ten!\n");
+                    printf("Chon chuc nang: ");
+                    __fpurge(stdin);
+                    gets(choice);
+                    // test = choice - '0';
+                    // printf("%s\n", test);
+                    int check2 = choice[0] - '0';
+                    switch(check2){
+                        case 1:
+                            printf("-----------------Phong cho------------------\n");
+                            write(sockfd, choice, 256);
+                            read(sockfd, &test, 256);
+                            while(1){
+                                // printf("%s", test);
+                                // printf("useeeeeerr: %s", usename);
+                                char *test2 = showRoom(test);
+                                // char c;
+                                if(strcmp(usename, test2) == 0){
+                                    printf("Ban dang la chu phong ban co the bat dau game bang chu S!\n");
+                                    printf("[S]. Bat dau!\t [T]. Cho them nguoi!\n");
+                                    gets(test);
+                                    write(sockfd, test, 256);
+                                }else{
+                                    strcpy(test, "accc");
+                                    write(sockfd, test, 256);
+                                }
+                                read(sockfd, &test, 256);
+                                if(strcmp(test, "start") == 0){
+                                    return;
+                                }
+                                // sleep(5);
+                            }
+                            // return;
+                        
+                        default:
+                            break;
+                    }
                     
                 }
                 break;
@@ -209,11 +272,6 @@ void* update_screen(void* arg){
     return 0;
 }
 
-int checkBye(char needCheck[]){
-    if(strcmp(needCheck, "Bye") == 0 || strcmp(needCheck, "bye") == 0 || strcmp(needCheck, "BYE") == 0) return 1;
-    return 0;
-}
-
 int main(int argc, char *argv[]){
     int                 sockfd;
     struct sockaddr_in  serv_addr;
@@ -250,105 +308,6 @@ int main(int argc, char *argv[]){
         error("ERROR connecting");
     
     sign_to_server(sockfd);
-    // make_thread(sign_to_server, &sockfd);
-    // return 0;
-    // sign_to_server();
-    // int login = 0;
-    // while(login == 0){
-    //     char buff[10];
-	// 	//Send params = login
-	// 	strcpy(buff, "login");
-    //     send(sockfd, "login", 5, 0);
-    //     login = 1;
-    // }
-    
-    // while(login == 0){
-    //     char buff[BUFF_SIZE];
-    //     int msg_len, bytes_received;
-	// 	printf("\nLogin and change password!\n");
-
-	// 	//Send params = login
-	// 	strcpy(buff, "login");
-    //     send(sockfd, "login", 5, 0);
-
-	// 	//Some print
-    //     bytes_received = recv(sockfd, buff, BUFF_SIZE-1, 0);
-    //     buff[bytes_received] = '\0';
-	// 	printf("%s", buff);
-
-	// 	//Send usename
-	// 	fgets(buff, BUFF_SIZE, stdin);
-	// 	buff[strlen(buff) - 1] = '\0';		
-    //     msg_len = strlen(buff);	
-    //     send(sockfd, buff, msg_len, 0);
-	// 	if(checkBye(buff)) return 0;
-		
-	// 	//Check return value
-	// 	bytes_received = recv(sockfd, buff, BUFF_SIZE-1, 0);
-    //     buff[bytes_received] = '\0';
-	// 	char error[BUFF_SIZE];
-	// 	strcpy(error, "Password: ");
-	// 	if(strcmp(buff, error) != 0){
-	// 		printf("%s", buff);
-	// 		continue;
-	// 	}
-	// 	printf("%s", buff);
-
-	// 	//Send pass
-	// 	fgets(buff, BUFF_SIZE, stdin);
-	// 	buff[strlen(buff) - 1] = '\0';		
-    //     msg_len = strlen(buff);	
-    //     send(sockfd, buff, msg_len, 0);
-	// 	if(checkBye(buff)) return 0;
-
-	// 	//Mess from server and check pass
-	// 	bytes_received = recv(sockfd, buff, BUFF_SIZE-1, 0);
-    //     buff[bytes_received] = '\0';
-	// 	char failPass[BUFF_SIZE];
-	// 	strcpy(failPass, "Password is incorrect\nPassword: ");
-	// 	while(!strcmp(buff, failPass)){
-	// 		printf("%s", buff);
-
-	// 		//1kai send again
-	// 		fgets(buff, BUFF_SIZE, stdin);
-	// 		buff[strlen(buff) - 1] = '\0';		
-	// 		msg_len = strlen(buff);	
-    //         send(sockfd, buff, msg_len, 0);
-	// 		if(checkBye(buff)) return 0;
-
-	// 		//New mess recv
-	// 		bytes_received = recv(sockfd, buff, BUFF_SIZE-1, 0);
-    //         buff[bytes_received] = '\0';
-	// 		if(strcmp(buff, failPass) != 0 && strcmp(buff, "OK\n") != 0){
-	// 			printf("%s", buff);
-	// 			continue;
-	// 		}
-	// 	}
-	// 	if(!strcmp(buff, "OK\n")){
-	// 		printf("%s", buff);
-
-	// 		//After OK can change pass
-	// 		printf("Now you can change password!\nNew password: ");
-	// 		fgets(buff, BUFF_SIZE, stdin);
-	// 		while(buff[0] == '\n'){
-	// 			printf("New pass can't empty!\n");
-	// 			printf("Now you can change password!\nNew password: ");
-	// 			fgets(buff, BUFF_SIZE, stdin);
-	// 			if(checkBye(buff)) return 0;
-	// 		}
-	// 		buff[strlen(buff) - 1] = '\0';		
-	// 		msg_len = strlen(buff);	
-    //         send(sockfd, buff, msg_len, 0);
-	// 		if(checkBye(buff)) return 0;
-
-	// 		//mess after change pass
-	// 		bytes_received = recv(sockfd, buff, BUFF_SIZE-1, 0);
-    //         buff[bytes_received] = '\0';
-	// 		printf("%s", buff);
-	// 	}
-    //     login = 1;
-	// }
-
     //Create Ncurses Window, with input, no echo and hidden cursor
     initscr();      
     cbreak();
