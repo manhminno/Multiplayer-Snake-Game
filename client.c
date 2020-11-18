@@ -54,14 +54,30 @@ int make_thread(void* (*fn)(void *), void* arg){
     return err;
 }
 
+void Snake(){
+    system("clear");
+    printf("                          _\n");
+    printf(" __                      | |\n");
+    printf("{OO}      ___ _ __   __ _| | _____  ___\n");
+    printf("\\__/     / __| '_ \\ / _` | |/ / _ \\/ __|\n");
+    printf(" |^|     \\__ \\ | | | (_| |   <  __/\\__ \\\n");
+    printf(" | |     |___/_| |_|\\__,_|_|\\_\\___||___/   v1.0  /\\\n");
+    printf(" | |____________________________________________/ /\n");
+    printf(" \\_______________________________________________/\n");
+}
+
 void Menu(){
-    printf("Snake\n");
-    printf("-----------------------------------\n");
-    printf("1. Register\n");
-    printf("2. Sign in\n");
+    Snake();
+    printf(" _________________________________________________ \n");
+    printf("|                 => [1]. Register                |\n");
+    printf("|                 => [2]. Login                   |\n");
+    printf("|_________________________________________________|\n");
+    printf("Play now: ");
 }
 
 char *showRoom(char room[]){
+    Snake();
+    printf(" __________________Waiting-room___________________ \n");
     const char space[2] = "_";
     char *token;
     char tmp[256];
@@ -70,15 +86,17 @@ char *showRoom(char room[]){
     token = strtok(room, space);
     main_player = token;
     strcpy(tmp, token);
-    printf("%d. %s\n", i, tmp);
+    printf(">[No %d]. %s\n", i, tmp);
     i++;
     token = strtok(NULL, space);
     while(token != NULL){
         strcpy(tmp, token);
-        printf("%d. %s\n", i, tmp);
+        printf("[No %d]. %s\n", i, tmp);
         i++;
         token = strtok(NULL, space);
     }
+    printf(" _________________________________________________ \n");
+    printf(" Waiting-room will be updated every 5 seconds!\n");
     return main_player;
 }
 void sign_to_server(int sockfd){
@@ -92,7 +110,6 @@ void sign_to_server(int sockfd){
     // User *p;
     while(1){
         Menu();
-        printf("Chon chuc nang: ");
         __fpurge(stdin);
         gets(choice);
         // test = choice - '0';
@@ -101,25 +118,27 @@ void sign_to_server(int sockfd){
         write(sockfd, choice, 2);
         switch (check){
             case 1:
-                printf("Dang ky tai khoan:---------------------\n");
-                printf("Ten dang nhap: ");
+                Snake();
+                printf(" ________________Register account__________________\n");
+                printf("Username: ");
                 __fpurge(stdin);
                 gets(usename);
                 write(sockfd, usename, 256);
                 read(sockfd, &test, 10);
                 if(strcmp(test, "NotOK") == 0){
-                    printf("Ten dang nhap da ton tai!\n");
+                    printf("Error! Username already exists!\n");
                     break;
                 }else{
-                    printf("Mat khau: ");
+                    printf("Password: ");
                     __fpurge(stdin);
                     gets(password);
                     write(sockfd, password, 256);
                 }
                 break;
             case 2:
-                printf("Dang nhap tai khoan:---------------------\n");
-                printf("Ten dang nhap: ");
+                Snake();
+                printf(" _________________Login account___________________\n");
+                printf("Username: ");
                 __fpurge(stdin);
                 gets(usename);
                 write(sockfd, usename, 256);
@@ -129,23 +148,25 @@ void sign_to_server(int sockfd){
                     break;
                 }else{
                     strcpy(tmp, usename);
-                    printf("Mat khau: ");
+                    printf("Password: ");
                     __fpurge(stdin);
                     gets(password);
                     write(sockfd, password, 256);
                     read(sockfd, &test, 256);
                     while(strcmp(test, "OKchoi") != 0){
-                        printf("Sai mat khau!\n");
-                        printf("Mat khau: ");
+                        printf("Error! Wrong password!\n");
+                        printf("Password: ");
                         __fpurge(stdin);
                         gets(password);
                         write(sockfd, password, 256);
                         read(sockfd, &test, 256);
                     }
-                    printf("Dang nhap thanh cong!\n");
-                    printf("1. Tham gia phong cho!\n");
-                    printf("2. Doi ten!\n");
-                    printf("Chon chuc nang: ");
+                    Snake();
+                    printf(" ____________Logged in successfully!______________ \n");
+                    printf("|             => [1]. Join waiting-room           |\n");
+                    printf("|             => [2]. Change name                 |\n");
+                    printf("|_________________________________________________|\n");
+                    printf("===> ");
                     __fpurge(stdin);
                     gets(choice);
                     // test = choice - '0';
@@ -153,7 +174,6 @@ void sign_to_server(int sockfd){
                     int check2 = choice[0] - '0';
                     switch(check2){
                         case 1:
-                            printf("-----------------Phong cho------------------\n");
                             write(sockfd, choice, 256);
                             read(sockfd, &test, 256);
                             while(1){
@@ -162,8 +182,10 @@ void sign_to_server(int sockfd){
                                 char *test2 = showRoom(test);
                                 // char c;
                                 if(strcmp(usename, test2) == 0){
-                                    printf("Ban dang la chu phong ban co the bat dau game bang chu S!\n");
-                                    printf("[S]. Bat dau!\t [T]. Cho them nguoi!\n");
+                                    printf("You are host of the room, let's start game!\n");
+                                    printf("        =>[S]. Start game\n");
+                                    printf("        =>[T]. Waiting for more players\n");
+                                    printf("=>");
                                     gets(test);
                                     write(sockfd, test, 256);
                                 }else{
@@ -309,7 +331,17 @@ int main(int argc, char *argv[]){
     
     sign_to_server(sockfd);
 
-    
+    printf("Tro choi se bat dau sau: 5\n");
+    sleep(1);
+    printf("Tro choi se bat dau sau: 4\n");
+    sleep(1);
+    printf("Tro choi se bat dau sau: 3\n");
+    sleep(1);
+    printf("Tro choi se bat dau sau: 2\n");
+    sleep(1);
+    printf("Tro choi se bat dau sau: 1\n");
+    sleep(1);
+
 
     //Create Ncurses Window, with input, no echo and hidden cursor
     initscr();      
