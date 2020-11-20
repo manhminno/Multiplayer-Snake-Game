@@ -183,7 +183,7 @@ void sign_to_server(int sockfd){
                                 char *test2 = showRoom(test);
                                 // char c;
                                 if(strcmp(usename, test2) == 0){
-                                    printf("You are host of the room, let's start game!\n");
+                                    printf("\n You are host of the room, let's start game!\n");
                                     printf("        =>[S]. Start game\n");
                                     printf("        =>[T]. Waiting for more players\n");
                                     printf("=>");
