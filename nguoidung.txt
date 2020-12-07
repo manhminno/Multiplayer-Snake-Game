@@ -8,3 +8,5 @@ manhnvtest3 manhnv3 1
 manhnvtest4 manhnv4 1
 manhnvtest5 manhnv5 1
 manhnvtest6 manhnv6 1
+tuba tuba 1
+M@nh1 M@nh1 1
