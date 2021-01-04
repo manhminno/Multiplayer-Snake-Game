@@ -271,8 +271,9 @@ void* gameplay(void* arg){
                 password[xxx] = '\0';
                 printf("Receive usename from client in socket %d: %s\n", fd, usename);
                 printf("Receive passwork from client in socket %d: %s\n", fd, password);
-                int status = 1;
-                User *p = makeUser(usename, password, status);
+                int status = 0;
+                int win_times = 0;
+                User *p = makeUser(usename, password, status, win_times);
                 addUser(&l, p);
                 writeFile("nguoidung.txt", l);
             }

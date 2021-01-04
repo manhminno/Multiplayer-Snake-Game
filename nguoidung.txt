@@ -1,12 +1,16 @@
-hedspi1 hedpsi2016 1
-hust hust123 1
-soict W 1
-manhnv manhnv 1
-manhnvtest manhnv 1
-manhnvtest2 manhnv2 1
-manhnvtest3 manhnv3 1
-manhnvtest4 manhnv4 1
-manhnvtest5 manhnv5 1
-manhnvtest6 manhnv6 1
-tuba tuba 1
-M@nh1 M@nh1 1
+manhnv manhnv 0 0
+manhnvtest manhnv 0 0
+manhnvtest2 manhnv2 0 0
+manhnvtest3 manhnv3 0 0
+manhnvtest4 manhnv4 0 0
+manhnvtest5 manhnv5 0 0
+manhnvtest6 manhnv6 0 0
+tuba tuba 0 0
+M@nh1 M@nh1 0 0
+choidi choidi 0 0
+choiluon 123456 0 0
+test123 test123456 0 0
+manhnv222 manhnv 0 0
+manhnv22 manhnv 0 0
+manhnvs manhnv 0 0
+manhnvj manhnv 0 0

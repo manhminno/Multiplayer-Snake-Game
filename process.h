@@ -17,6 +17,7 @@ typedef struct _User{
     char usename[MAX];
     char password[MAX];
     int status;
+    int win_times;
     struct _User *pNext;
 } User;
 
@@ -29,11 +30,12 @@ void InitList(List *l){
     l->pHead = l->pTail = NULL;
 }
 
-User *makeUser(char usename[], char password[], int status){
+User *makeUser(char usename[], char password[], int status, int win_times){
     User *p = (User *)malloc(sizeof(User));
     strcpy(p->usename, usename);
     strcpy(p->password, password);
     p->status = status;
+    p->win_times = win_times;
     p->pNext = NULL;
     return p;
 }
@@ -64,6 +66,7 @@ void readFile(char *file_name, List *l){
     char usename[MAX];
     char password[MAX];
     int status;
+    int win_times;
     const char space[2] = " ";
 
     while(!feof(fin)){
@@ -75,7 +78,9 @@ void readFile(char *file_name, List *l){
         token = strtok(NULL, space);
         strcpy(tmp, token);
         status = tmp[0] - '0';
-        User *p = makeUser(usename, password, status);
+        strcpy(tmp, token);
+        win_times = tmp[0] - '0';
+        User *p = makeUser(usename, password, status, win_times);
         addUser(l, p);
     }
     fclose(fin);
@@ -99,6 +104,11 @@ void writeFile(char *file_name, List l){
         c[0] = p->status + '0';
         c[1] = '\0';
         fprintf(fin, "%s", c);
+        fprintf(fin, "%s", " ");
+        char c2[2];
+        c2[0] = p->win_times + '0';
+        c2[1] = '\0';
+        fprintf(fin, "%s", c2);
         if(p != l.pTail) fprintf(fin, "\n");
     }
     fclose(fin);

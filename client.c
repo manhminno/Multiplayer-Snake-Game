@@ -57,7 +57,7 @@ int make_thread(void* (*fn)(void *), void* arg){
 }
 
 void Snake(){
-    // system("clear");
+    system("clear");
     printf("                          _\n");
     printf(" __                      | |\n");
     printf("{OO}      ___ _ __   __ _| | _____  ___\n");
@@ -69,7 +69,7 @@ void Snake(){
 }
 
 void Menu(){
-    Snake();
+    // Snake();
     printf(" _________________________________________________ \n");
     printf("|                 => [1]. Register                |\n");
     printf("|                 => [2]. Login                   |\n");
@@ -108,10 +108,15 @@ void sign_to_server(int sockfd){
     char usename[256];
     char password[256];
     char tmp[256];
+    int signup = 0;
     // List l;
     // InitList(&l);
     // User *p;
     while(1){
+        Snake();
+        if(signup == 1){
+            printf("Sign up successful!\n");
+        }
         Menu();
         __fpurge(stdin);
         gets(choice);
@@ -135,8 +140,15 @@ void sign_to_server(int sockfd){
                     printf("Password: ");
                     __fpurge(stdin);
                     gets(password);
+                    while(strlen(password) < 6){
+                        printf("Password length must be greater than or equal to 6 characters!\n");
+                        printf("Password: ");
+                        __fpurge(stdin);
+                        gets(password);
+                    }
                     write(sockfd, password, 256);
                 }
+                signup = 1;
                 break;
             case 2:
                 Snake();
@@ -208,11 +220,11 @@ void sign_to_server(int sockfd){
                             // return;
                         case 2:
                             write(sockfd, choice, 2);
-                            printf("Nhap mat khau moi: ");
+                            printf("New password: ");
                             gets(new_password);
                             while(strlen(new_password) < 6){
-                                printf("Vui long nhap password co do dai >= 6 ki tu!\n");
-                                printf("Nhap mat khau moi: ");
+                                printf("Password length must be greater than or equal to 6 characters!\n");
+                                printf("New password: ");
                                 gets(new_password);
                             }
                             // printf("%s\n", new_password);
