@@ -102,6 +102,31 @@ char *showRoom(char room[]){
     return main_player;
 }
 
+char *showProfile(char room[]){
+    Snake();
+    printf(" __________________Waiting-room___________________ \n");
+    const char space[2] = "_";
+    char *token;
+    char tmp[256];
+    int i = 1;
+    char *main_player;
+    token = strtok(room, space);
+    main_player = token;
+    strcpy(tmp, token);
+    printf(">[No %d]. %s\n", i, tmp);
+    i++;
+    token = strtok(NULL, space);
+    while(token != NULL){
+        strcpy(tmp, token);
+        printf(">[No %d]. %s\n", i, tmp);
+        i++;
+        token = strtok(NULL, space);
+    }
+    printf(" _________________________________________________ \n");
+    printf(" Waiting-room will be updated every 5 seconds!\n");
+    return main_player;
+}
+
 void sign_to_server(int sockfd){
     char test[256];
     char choice[2];
@@ -113,9 +138,13 @@ void sign_to_server(int sockfd){
     // InitList(&l);
     // User *p;
     while(1){
+
         Snake();
         if(signup == 1){
-            printf("Sign up successful!\n");
+            printf("|             **Sign up successful!**             |\n");
+        }
+        else if(signup == -2){
+            printf("|       **Error! Username already exists!**       |\n");
         }
         Menu();
         __fpurge(stdin);
@@ -134,7 +163,8 @@ void sign_to_server(int sockfd){
                 write(sockfd, usename, 256);
                 read(sockfd, &test, 10);
                 if(strcmp(test, "NotOK") == 0){
-                    printf("Error! Username already exists!\n");
+                    // printf("Error! Username already exists!\n");
+                    signup = -2;
                     break;
                 }else{
                     printf("Password: ");
@@ -176,7 +206,11 @@ void sign_to_server(int sockfd){
                         write(sockfd, password, 256);
                         read(sockfd, &test, 256);
                     }
+                    back:
                     Snake();
+                    if(signup == -3){
+                        printf("|       **Password changed successfully!**        |\n");
+                    }
                     printf(" ____________Logged in successfully!______________ \n");
                     printf("|             => [1]. Join waiting-room           |\n");
                     printf("|             => [2]. Change password             |\n");
@@ -229,20 +263,14 @@ void sign_to_server(int sockfd){
                             }
                             // printf("%s\n", new_password);
                             write(sockfd, new_password, 256);
-                            printf("Doi mat khau thanh cong!\n");
+                            signup = -3;
+                            goto back;
+                            break;
                         case 3:
                             write(sockfd, choice, 2);
-                            printf("Nhap mat khau moi: ");
-                            gets(new_password);
-                            while(strlen(new_password) < 6){
-                                printf("Vui long nhap password co do dai >= 6 ki tu!\n");
-                                printf("Nhap mat khau moi: ");
-                                gets(new_password);
-                            }
-                            // printf("%s\n", new_password);
-                            write(sockfd, new_password, 256);
-                            printf("Doi mat khau thanh cong!\n");
-
+                            read(sockfd, &test, 256);
+                            printf("%s\n", test);
+                            goto back;
                         default:
                             break;
                     }

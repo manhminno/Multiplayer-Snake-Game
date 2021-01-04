@@ -226,7 +226,7 @@ void error(const char* msg){
 
 //Handle ctrl+c signal
 void ctrl_c_handler(){
-    printf("\nQuit game!.\n");
+    printf("\nServer exited!.\n");
     exit(0);
 }
 
@@ -237,6 +237,7 @@ int t1 = 5;
 int t2 = 5;
 //Thread gameplay function
 void* gameplay(void* arg){ 
+    User *tmp;
     char usename[256];
     char password[256];
     List l;
@@ -258,7 +259,7 @@ void* gameplay(void* arg){
                 break;
             }
             usename[xxx] = '\0';
-            User *tmp = checkUser(usename, l);
+            tmp = checkUser(usename, l);
             if(tmp != NULL){
                 write(fd, "NotOK", 10);
             }
@@ -281,7 +282,7 @@ void* gameplay(void* arg){
         else if(strcmp(recv_data, "2") == 0){
             xxx = read(fd, &usename, 256);
             usename[xxx] = '\0';
-            User *tmp = checkUser(usename, l);
+            tmp = checkUser(usename, l);
             if(tmp == NULL){
                 write(fd, "NotOK", 10);
             }
@@ -304,6 +305,7 @@ void* gameplay(void* arg){
                 }
                 write(fd, "OKchoi", 256);
                 // break;
+                back:
                 read(fd, &recv_data, 2);
                 recv_data[xxx] = '\0';
                 if(xxx == 0){
@@ -314,6 +316,7 @@ void* gameplay(void* arg){
                     strcat(room, usename);
                     // printf("%s\n", room);
                     // read(fd, &recv_data, 2);
+                    write(fd, room, 256);
                     while(1){
                         xxx = read(fd, &recv_data, 256);
                         if(xxx == 0){
@@ -351,12 +354,28 @@ void* gameplay(void* arg){
                     writeFile("nguoidung.txt", l);
                 }
                 else if(strcmp(recv_data, "3") == 0){
-
+                    char information[256];
+                    strcat(information, "_");
+                    strcat(information, tmp->usename);
+                    strcat(information, "_");
+                    char c[2]; 
+                    c[0] = tmp->status + '0';
+                    c[1] = '\0';
+                    strcat(information, c);
+                    strcat(information, "_");
+                    c[0] = tmp->win_times + '0';
+                    c[1] = '\0';
+                    strcat(information, c);
+                    printf("%s\n", information);
+                    write(fd, information, 256);
+                    goto back;
                 }
             }
         }
         // break;
     }
+    tmp->status += 1;
+    writeFile("nguoidung.txt", l);
     start = 0;
     // free(room);
     room[0] = '\0';
@@ -500,6 +519,8 @@ void* gameplay(void* arg){
 
     if(player_snake->length == WINNER_LENGTH){
         fprintf(stderr, "Player %d da thang!\n", player_no);
+        tmp->win_times += 1;
+        writeFile("nguoidung.txt", l);
         kill_snake(player_snake);
         close(fd);  
         return 0;
