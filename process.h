@@ -100,15 +100,38 @@ void writeFile(char *file_name, List l){
         fprintf(fin, "%s", " ");
         fprintf(fin, "%s", p->password);
         fprintf(fin, "%s", " ");
-        char c[2];
-        c[0] = p->status + '0';
-        c[1] = '\0';
+        // char c[2];
+        // c[0] = p->status + '0';
+        // c[1] = '\0';
+        // fprintf(fin, "%s", c);
+        // fprintf(fin, "%s", " ");
+        // char c2[2];
+        // c2[0] = p->win_times + '0';
+        // c2[1] = '\0';
+        // fprintf(fin, "%s", c2);
+        char c[3]; 
+        if(p->status > 9){
+            c[1] = p->status - 10*(p->status/10) + '0';
+            c[0] = p->status/10 + '0';
+            c[2] = '\0';
+        }
+        else{
+            c[0] = p->status + '0';
+            c[1] = '\0';
+        }
+        printf("%s", c);
         fprintf(fin, "%s", c);
         fprintf(fin, "%s", " ");
-        char c2[2];
-        c2[0] = p->win_times + '0';
-        c2[1] = '\0';
-        fprintf(fin, "%s", c2);
+        if(p->win_times > 9){
+            c[1] = p->win_times - 10*(p->win_times/10) + '0';
+            c[0] = p->win_times/10 + '0';
+            c[2] = '\0';
+        }
+        else{
+            c[0] = p->win_times + '0';
+            c[1] = '\0';
+        }
+        fprintf(fin, "%s", c);
         if(p != l.pTail) fprintf(fin, "\n");
     }
     fclose(fin);

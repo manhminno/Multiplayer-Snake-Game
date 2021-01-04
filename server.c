@@ -352,23 +352,43 @@ void* gameplay(void* arg){
                     // printf("nhan: %s\n", new);
                     strcpy(tmp->password, new);
                     writeFile("nguoidung.txt", l);
+                    goto back;
                 }
                 else if(strcmp(recv_data, "3") == 0){
                     char information[256];
                     strcat(information, "_");
                     strcat(information, tmp->usename);
                     strcat(information, "_");
-                    char c[2]; 
-                    c[0] = tmp->status + '0';
-                    c[1] = '\0';
+                    char c[3]; 
+                    if(tmp->status > 9){
+                        c[0] = tmp->status/10 + '0';
+                        c[1] = tmp->status - 10*(tmp->status/10) + '0';
+                        c[2] = '\0';
+                    }
+                    else{
+                        c[0] = tmp->status + '0';
+                        c[1] = '\0';
+                    }
                     strcat(information, c);
                     strcat(information, "_");
-                    c[0] = tmp->win_times + '0';
-                    c[1] = '\0';
+                    if(tmp->win_times > 9){
+                        c[0] = tmp->win_times/10 + '0';
+                        c[1] = tmp->win_times - 10*(tmp->win_times/10) + '0';
+                        c[2] = '\0';
+                    }
+                    else{
+                        c[0] = tmp->win_times + '0';
+                        c[1] = '\0';
+                    }
                     strcat(information, c);
                     printf("%s\n", information);
                     write(fd, information, 256);
-                    goto back;
+                    xxx = read(fd, &recv_data, 256);
+                    if(xxx == 0) break;
+                    if(strcmp(recv_data, "3") == 0){
+                        information[0] = '\0';
+                        goto back;
+                    }
                 }
             }
         }
@@ -525,7 +545,6 @@ void* gameplay(void* arg){
         close(fd);  
         return 0;
     }
-
     else{
         fprintf(stderr, "Player %d thoat game.\n", player_no);
         kill_snake(player_snake);

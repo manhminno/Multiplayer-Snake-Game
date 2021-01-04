@@ -210,8 +210,11 @@ void sign_to_server(int sockfd){
                     Snake();
                     if(signup == -3){
                         printf("|       **Password changed successfully!**        |\n");
+                        printf("|_________________________________________________|\n");
                     }
-                    printf(" ____________Logged in successfully!______________ \n");
+                    else{
+                        printf(" ____________Logged in successfully!______________ \n");
+                    }
                     printf("|             => [1]. Join waiting-room           |\n");
                     printf("|             => [2]. Change password             |\n");
                     printf("|             => [3]. Show profile                |\n");
@@ -267,9 +270,13 @@ void sign_to_server(int sockfd){
                             goto back;
                             break;
                         case 3:
+                            signup = 0;
                             write(sockfd, choice, 2);
                             read(sockfd, &test, 256);
                             printf("%s\n", test);
+                            printf("Press enter to continue...");
+                            getchar();
+                            write(sockfd, choice, 2);                      
                             goto back;
                         default:
                             break;
