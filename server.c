@@ -349,6 +349,9 @@ void* gameplay(void* arg){
                     strcpy(tmp->password, new);
                     writeFile("nguoidung.txt", l);
                 }
+                else if(strcmp(recv_data, "3") == 0){
+
+                }
             }
         }
         // break;

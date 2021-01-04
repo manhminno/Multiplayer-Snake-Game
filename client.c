@@ -167,7 +167,8 @@ void sign_to_server(int sockfd){
                     Snake();
                     printf(" ____________Logged in successfully!______________ \n");
                     printf("|             => [1]. Join waiting-room           |\n");
-                    printf("|             => [2]. Change name                 |\n");
+                    printf("|             => [2]. Change password             |\n");
+                    printf("|             => [3]. Show profile                |\n");
                     printf("|_________________________________________________|\n");
                     printf("===> ");
                     __fpurge(stdin);
@@ -217,6 +218,19 @@ void sign_to_server(int sockfd){
                             // printf("%s\n", new_password);
                             write(sockfd, new_password, 256);
                             printf("Doi mat khau thanh cong!\n");
+                        case 3:
+                            write(sockfd, choice, 2);
+                            printf("Nhap mat khau moi: ");
+                            gets(new_password);
+                            while(strlen(new_password) < 6){
+                                printf("Vui long nhap password co do dai >= 6 ki tu!\n");
+                                printf("Nhap mat khau moi: ");
+                                gets(new_password);
+                            }
+                            // printf("%s\n", new_password);
+                            write(sockfd, new_password, 256);
+                            printf("Doi mat khau thanh cong!\n");
+
                         default:
                             break;
                     }
