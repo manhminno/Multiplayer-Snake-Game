@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <ctype.h>
 #include <string.h>
 #include <ncurses.h>
 #include <ctype.h>
+#include <signal.h>
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -55,13 +57,13 @@ int make_thread(void* (*fn)(void *), void* arg){
 }
 
 void Snake(){
-    system("clear");
+    // system("clear");
     printf("                          _\n");
     printf(" __                      | |\n");
     printf("{OO}      ___ _ __   __ _| | _____  ___\n");
     printf("\\__/     / __| '_ \\ / _` | |/ / _ \\/ __|\n");
     printf(" |^|     \\__ \\ | | | (_| |   <  __/\\__ \\\n");
-    printf(" | |     |___/_| |_|\\__,_|_|\\_\\___||___/   v1.0  /\\\n");
+    printf(" | |     |___/_| |_|\\__,_|_|\\_\\___||___/   HUST  /\\\n");
     printf(" | |____________________________________________/ /\n");
     printf(" \\_______________________________________________/\n");
 }
@@ -173,9 +175,10 @@ void sign_to_server(int sockfd){
                     // test = choice - '0';
                     // printf("%s\n", test);
                     int check2 = choice[0] - '0';
+                    char new_password[256];
                     switch(check2){
                         case 1:
-                            write(sockfd, choice, 256);
+                            write(sockfd, choice, 2);
                             read(sockfd, &test, 256);
                             while(1){
                                 // printf("%s", test);
@@ -183,6 +186,7 @@ void sign_to_server(int sockfd){
                                 char *test2 = showRoom(test);
                                 // char c;
                                 if(strcmp(usename, test2) == 0){
+                                    // free(test2);
                                     printf("\n You are host of the room, let's start game!\n");
                                     printf("        =>[S]. Start game\n");
                                     printf("        =>[T]. Waiting for more players\n");
@@ -195,12 +199,24 @@ void sign_to_server(int sockfd){
                                 }
                                 read(sockfd, &test, 256);
                                 if(strcmp(test, "start") == 0){
+                                    // free(test2);
                                     return;
                                 }
                                 // sleep(5);
                             }
                             // return;
-                        
+                        case 2:
+                            write(sockfd, choice, 2);
+                            printf("Nhap mat khau moi: ");
+                            gets(new_password);
+                            while(strlen(new_password) < 6){
+                                printf("Vui long nhap password co do dai >= 6 ki tu!\n");
+                                printf("Nhap mat khau moi: ");
+                                gets(new_password);
+                            }
+                            // printf("%s\n", new_password);
+                            write(sockfd, new_password, 256);
+                            printf("Doi mat khau thanh cong!\n");
                         default:
                             break;
                     }
@@ -332,6 +348,7 @@ int main(int argc, char *argv[]){
     
     sign_to_server(sockfd);
 
+
     printf("Tro choi se bat dau sau: 5\n");
     sleep(1);
     printf("Tro choi se bat dau sau: 4\n");
@@ -429,5 +446,4 @@ int main(int argc, char *argv[]){
     //Close connection
     close(sockfd);
     return 0;
-
 }
