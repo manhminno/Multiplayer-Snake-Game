@@ -385,7 +385,7 @@ void* gameplay(void* arg){
                         c[1] = '\0';
                     }
                     strcat(information, c);
-                    printf("%s\n", information);
+                    // printf("%s\n", information);
                     write(fd, information, 256);
                     xxx = read(fd, &recv_data, 256);
                     if(xxx == 0) break;
@@ -610,15 +610,13 @@ int main(){
             if (socket_fds[i] < 0) 
                 error("ERROR on accept");
             
-            //Reset game if someone won
             if(someone_won){
-                // printf("Da tim ra nguoi chien thang!\n");
                 someone_won = 0;
             }
             make_thread(&gameplay, &socket_fds[i]); 
         }
         //Closing the server socket
-        // close(socket_fds[0]);  
+        close(socket_fds[0]);  
     }
     return 0; 
 }

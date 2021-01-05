@@ -102,29 +102,35 @@ char *showRoom(char room[]){
     return main_player;
 }
 
-char *showProfile(char room[]){
+void showProfile(char user[]){
     Snake();
-    printf(" __________________Waiting-room___________________ \n");
+    printf(" _____________________Profile_____________________ \n");
     const char space[2] = "_";
     char *token;
     char tmp[256];
-    int i = 1;
-    char *main_player;
-    token = strtok(room, space);
-    main_player = token;
+    float playedtimes;
+    float wontimes;
+    float pw;
+    token = strtok(user, space);
     strcpy(tmp, token);
-    printf(">[No %d]. %s\n", i, tmp);
-    i++;
+    printf(">>Account     : %s\n", tmp);
     token = strtok(NULL, space);
-    while(token != NULL){
-        strcpy(tmp, token);
-        printf(">[No %d]. %s\n", i, tmp);
-        i++;
-        token = strtok(NULL, space);
+    strcpy(tmp, token);
+    if(strlen(tmp) > 1){
+        playedtimes = (tmp[0] - '0')*10 + (tmp[1] - '0');
     }
-    printf(" _________________________________________________ \n");
-    printf(" Waiting-room will be updated every 5 seconds!\n");
-    return main_player;
+    else playedtimes = tmp[0] - '0';
+    printf(">>Played-times: %s\n", tmp);
+    token = strtok(NULL, space);
+    strcpy(tmp, token);
+    if(strlen(tmp) > 1){
+        wontimes = (tmp[0] - '0')*10 + (tmp[1] - '0');
+    }
+    else wontimes = tmp[0] - '0';
+    printf(">>Won-times   : %s\n", tmp);
+    if(wontimes == 0) pw = 0;
+    else pw = playedtimes/wontimes;
+    printf(">>PW-rate     : %.2f\n", pw);
 }
 
 void sign_to_server(int sockfd){
@@ -222,6 +228,11 @@ void sign_to_server(int sockfd){
                     printf("===> ");
                     __fpurge(stdin);
                     gets(choice);
+                    while(strlen(choice) == 0){
+                        printf("===> ");
+                        __fpurge(stdin);
+                        gets(choice);
+                    }
                     // test = choice - '0';
                     // printf("%s\n", test);
                     int check2 = choice[0] - '0';
@@ -252,9 +263,7 @@ void sign_to_server(int sockfd){
                                     // free(test2);
                                     return;
                                 }
-                                // sleep(5);
                             }
-                            // return;
                         case 2:
                             write(sockfd, choice, 2);
                             printf("New password: ");
@@ -273,7 +282,8 @@ void sign_to_server(int sockfd){
                             signup = 0;
                             write(sockfd, choice, 2);
                             read(sockfd, &test, 256);
-                            printf("%s\n", test);
+                            // printf("%s\n", test);
+                            showProfile(test);
                             printf("Press enter to continue...");
                             getchar();
                             write(sockfd, choice, 2);                      
@@ -288,12 +298,6 @@ void sign_to_server(int sockfd){
             default:
                 break;
         }
-        // gets(test);
-        // int n = write(sockfd, test, 12);
-        // int xxx = read(sockfd, &test, 12);
-        // if(strcmp(test, "OK") == 0){
-        //     return;
-        // }
     }
     return;
 }
@@ -382,7 +386,6 @@ int main(int argc, char *argv[]){
         fprintf(stderr,"Please type: %s [server ip] to launch the game.\n", argv[0]);
         exit(0);
     }    
-
     //Getting socket descriptor 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) 
