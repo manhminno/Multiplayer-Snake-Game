@@ -406,7 +406,6 @@ int main(int argc, char *argv[]){
     //Attempt connection with server
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
         error("ERROR connecting");
-    
     sign_to_server(sockfd);
 
 
@@ -503,7 +502,6 @@ int main(int argc, char *argv[]){
     echo(); 
     curs_set(1);  
     endwin();
-        
     //Close connection
     close(sockfd);
     return 0;

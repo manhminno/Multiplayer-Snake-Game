@@ -248,6 +248,7 @@ void* gameplay(void* arg){
     bzero(&recv_data, 12);
     while(1){
         int xxx = read(fd, &recv_data, 2);
+        if(xxx == 0) break;
         recv_data[xxx] = '\0';
         printf("Receive from client in socket %d: %s\n", fd, recv_data);
         if(strlen(recv_data) == 0){
@@ -281,6 +282,9 @@ void* gameplay(void* arg){
         }
         else if(strcmp(recv_data, "2") == 0){
             xxx = read(fd, &usename, 256);
+            if(xxx == 0){
+                break;
+            }
             usename[xxx] = '\0';
             tmp = checkUser(usename, l);
             if(tmp == NULL){
@@ -394,8 +398,10 @@ void* gameplay(void* arg){
         }
         // break;
     }
-    tmp->status += 1;
-    writeFile("nguoidung.txt", l);
+    if(tmp != NULL){
+        tmp->status += 1;
+        writeFile("nguoidung.txt", l);
+    }
     start = 0;
     // free(room);
     room[0] = '\0';

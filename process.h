@@ -63,6 +63,7 @@ void readFile(char *file_name, List *l){
     }
     char *token;
     char tmp[MAX];
+    char tmp2[MAX];
     char usename[MAX];
     char password[MAX];
     int status;
@@ -70,16 +71,25 @@ void readFile(char *file_name, List *l){
     const char space[2] = " ";
 
     while(!feof(fin)){
-        fgets(tmp, 256, fin);
-        token = strtok(tmp, space);
+        fgets(tmp2, 256, fin);
+        token = strtok(tmp2, space);
         strcpy(usename, token);
         token = strtok(NULL, space);
         strcpy(password, token);
         token = strtok(NULL, space);
         strcpy(tmp, token);
-        status = tmp[0] - '0';
+        if(strlen(tmp) > 1){
+            status = (tmp[0] - '0')*10 + (tmp[1] - '0');
+        }
+        else status = tmp[0] - '0';
+        token = strtok(NULL, space);
         strcpy(tmp, token);
-        win_times = tmp[0] - '0';
+        // printf("%s---\n",tmp);
+        if(tmp[strlen(tmp)-1] == '\n')  tmp[strlen(tmp)-1] = '\0';
+        if(strlen(tmp) > 1){
+            win_times = (tmp[0] - '0')*10 + (tmp[1] - '0');
+        }
+        else win_times = tmp[0] - '0';
         User *p = makeUser(usename, password, status, win_times);
         addUser(l, p);
     }
@@ -100,31 +110,21 @@ void writeFile(char *file_name, List l){
         fprintf(fin, "%s", " ");
         fprintf(fin, "%s", p->password);
         fprintf(fin, "%s", " ");
-        // char c[2];
-        // c[0] = p->status + '0';
-        // c[1] = '\0';
-        // fprintf(fin, "%s", c);
-        // fprintf(fin, "%s", " ");
-        // char c2[2];
-        // c2[0] = p->win_times + '0';
-        // c2[1] = '\0';
-        // fprintf(fin, "%s", c2);
         char c[3]; 
         if(p->status > 9){
-            c[1] = p->status - 10*(p->status/10) + '0';
             c[0] = p->status/10 + '0';
+            c[1] = (p->status - 10*(p->status/10)) + '0';
             c[2] = '\0';
         }
         else{
             c[0] = p->status + '0';
             c[1] = '\0';
         }
-        printf("%s", c);
         fprintf(fin, "%s", c);
         fprintf(fin, "%s", " ");
         if(p->win_times > 9){
-            c[1] = p->win_times - 10*(p->win_times/10) + '0';
             c[0] = p->win_times/10 + '0';
+            c[1] = p->win_times - 10*(p->win_times/10) + '0';
             c[2] = '\0';
         }
         else{
