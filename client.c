@@ -224,6 +224,7 @@ void sign_to_server(int sockfd){
                     printf("|             => [1]. Join waiting-room           |\n");
                     printf("|             => [2]. Change password             |\n");
                     printf("|             => [3]. Show profile                |\n");
+                    printf("|             => [4]. Show leaderboard            |\n");
                     printf("|_________________________________________________|\n");
                     printf("===> ");
                     __fpurge(stdin);
@@ -284,6 +285,52 @@ void sign_to_server(int sockfd){
                             read(sockfd, &test, 256);
                             // printf("%s\n", test);
                             showProfile(test);
+                            printf("Press enter to continue...");
+                            getchar();
+                            write(sockfd, choice, 2);                      
+                            goto back;
+                        case 4:
+                            signup = 0;
+                            write(sockfd, choice, 2);
+                            Snake();
+                            printf(" ______________________Leaderboard______________________ \n");
+                            printf("| Top |    Account    | Played-times |Won-times| PW-rate|\n");
+                            for(int i = 0; i < 9; i++){
+                                read(sockfd, &test, 256);
+                                char *token;
+                                char tmp[256];
+                                float playedtimes;
+                                float wontimes;
+                                float pw;
+                                const char space[2] = "_";
+                                if(i<3){
+                                    if(i == 0) printf("***%d***\t", i+1);
+                                    else if(i == 1) printf(" **%d**\t", i+1);
+                                    else if(i == 2) printf("  *%d*\t", i+1);
+                                }
+                                else printf("  [%d]\t", i+1);
+                                token = strtok(test, space);
+                                strcpy(tmp, token);
+                                printf("%-22s", tmp);
+                                token = strtok(NULL, space);
+                                strcpy(tmp, token);
+                                if(strlen(tmp) > 1){
+                                    playedtimes = (tmp[0] - '0')*10 + (tmp[1] - '0');
+                                }
+                                else playedtimes = tmp[0] - '0';
+                                printf("%-11s", tmp);
+                                token = strtok(NULL, space);
+                                strcpy(tmp, token);
+                                if(strlen(tmp) > 1){
+                                    wontimes = (tmp[0] - '0')*10 + (tmp[1] - '0');
+                                }
+                                else wontimes = tmp[0] - '0';
+                                printf("%-9s", tmp);
+                                if(wontimes == 0) pw = 0;
+                                else pw = playedtimes/wontimes;
+                                printf("%.2f\n", pw);
+                                // printf("%s\n", test);
+                            }
                             printf("Press enter to continue...");
                             getchar();
                             write(sockfd, choice, 2);                      

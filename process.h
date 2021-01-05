@@ -137,6 +137,42 @@ void writeFile(char *file_name, List l){
     fclose(fin);
 }
 
+void sortListStatus(List *clas){
+    List stu1, stu2;
+    if(clas->pHead == clas->pTail) return;
+    InitList(&stu1);  InitList(&stu2);
+    User *p;
+    User *tag;
+    tag = clas->pHead;
+    clas->pHead = clas->pHead->pNext;
+    tag->pNext = NULL;
+    while(clas->pHead != NULL){
+        p = clas->pHead;
+        clas->pHead = clas->pHead->pNext;
+        p->pNext = NULL;
+        if(p->status >= tag->status) {
+            addUser(&stu1, p);
+        }
+        else addUser(&stu2, p);
+    }
+    sortListStatus(&stu1);
+    sortListStatus(&stu2);
+    if(stu1.pHead != NULL){
+        clas->pHead = stu1.pHead;
+        stu1.pTail->pNext = tag;
+    }
+    else{
+        clas->pHead = tag;
+    }
+    tag->pNext = stu2.pHead;
+    if(stu2.pHead != NULL){
+        clas->pTail = stu2.pTail;
+    }
+    else{
+        clas->pTail = tag;
+    }
+}
+
 int checkBuff(char needCheck[], char *number, char *alpha){
 	int countNumber = 0, countAlphabet = 0;
 
@@ -152,133 +188,5 @@ int checkBuff(char needCheck[], char *number, char *alpha){
         }
         else return 0;
 	}
-    return 1;
-}
-
-void sendtoClient(char tmp_send[], int sockfd){
-    send(sockfd, tmp_send, strlen(tmp_send), 0);
-}
-
-int loginUser_server(char *file_name, List *l, int sockfd){
-    char usename[MAX];
-    char password[MAX];
-    int check = 1;
-    char tmp_send[MAX];
-    char tmp_recv[MAX];
-    char *number = (char *)malloc(MAX*sizeof(char));
-    char *alpha = (char *)malloc(MAX*sizeof(char));
-    char *tmp2 = (char *)malloc(MAX*sizeof(tmp2));
-    int newcheck;
-
-    int rcvBytes;
-
-    //Send some print
-    sendtoClient("Login User:\nUsername: ", sockfd);
-
-    //Get usename
-    rcvBytes = recv(sockfd, tmp_recv, MAX-1, 0);
-    tmp_recv[rcvBytes] = '\0';
-    if(checkBye(tmp_recv)) return 0;
-    printf("Client send usename: %s\n", tmp_recv);
-    strcpy(usename, tmp_recv);
-
-    //Check active or non or NULL
-    User *tmp = checkUser(usename, *l);
-    if(tmp != NULL){
-        if(tmp->status == 0){
-            sendtoClient("Account is blocked\n", sockfd);
-            return 1;
-        }
-        else if(tmp->status == 2){
-            sendtoClient("Account is not activated. Activation required.\n", sockfd);
-            return 1;
-        }
-
-        //Get pass
-        sendtoClient("Password: ", sockfd);
-        rcvBytes = recv(sockfd, tmp_recv, MAX-1, 0);
-        tmp_recv[rcvBytes] = '\0';
-        if(checkBye(tmp_recv)) return 0;
-
-        printf("Client send pass: %s\n", tmp_recv);
-        strcpy(password, tmp_recv);
-
-        if(strcmp(tmp->password, password) == 0){
-            sendtoClient("OK\n", sockfd);
-
-            //Change pass
-            rcvBytes = recv(sockfd, tmp_recv, MAX-1, 0);
-            tmp_recv[rcvBytes] = '\0';
-            if(checkBye(tmp_recv)) return 0;
-
-            newcheck = checkBuff(tmp_recv, number, alpha);
-            printf("Client send new pass: %s\n", tmp_recv);
-            
-            if(newcheck){
-                __fpurge(stdin);
-                strcpy(tmp2,"Change pass successful!\nNewpass: ");
-                if(strlen(number) != 0) tmp2 = strcat(tmp2, number);
-                if(strlen(alpha) != 0) tmp2 = strcat(tmp2, alpha);
-                sendtoClient(tmp2, sockfd);
-                strcpy(tmp->password, tmp_recv);
-                writeFile("nguoidung.txt", *l);
-            }else{
-                sendtoClient("Error! Wrong pass!\n", sockfd);
-            }
-            free(number);
-            free(alpha);
-            free(tmp2);
-            return 1;
-        }
-        else{
-            while(check != 3){
-                sendtoClient("Password is incorrect\nPassword: ", sockfd);
-
-                rcvBytes = recv(sockfd, tmp_recv, MAX-1, 0);
-                tmp_recv[rcvBytes] = '\0';
-                if(checkBye(tmp_recv)) return 0;
-        
-                printf("Client send pass: %s\n", tmp_recv);
-                strcpy(password, tmp_recv);
-
-                if(strcmp(tmp->password, password) == 0){
-                    sendtoClient("OK\n", sockfd);
-
-                    //Change passs
-                    rcvBytes = recv(sockfd, tmp_recv, MAX-1, 0);
-                    tmp_recv[rcvBytes] = '\0';
-                    if(checkBye(tmp_recv)) return 0;
-                    newcheck = checkBuff(tmp_recv, number, alpha);
-
-                    printf("Client send new pass: %s\n", tmp_recv);
-                    if(newcheck){
-                        __fpurge(stdin);
-                        strcpy(tmp2,"Change pass successful!\nNewpass: ");
-                        if(strlen(number) != 0) tmp2 = strcat(tmp2, number);
-                        if(strlen(alpha) != 0) tmp2 = strcat(tmp2, alpha);
-                        strcpy(tmp_send, tmp2);
-                        sendtoClient(tmp_send, sockfd);
-                        strcpy(tmp->password, tmp_recv);
-                        writeFile("nguoidung.txt", *l);
-                    }else{
-                        sendtoClient("Error! Wrong pass!\n", sockfd);
-                    }
-                    free(number);
-                    free(alpha);
-                    free(tmp2);
-                    return 1;
-                }
-                check += 1;
-            }
-            tmp->status = 0;
-            writeFile("nguoidung.txt", *l);
-            sendtoClient("Password is incorrect. Account is blocked\n", sockfd);
-            return 1;
-        }
-    }
-    else{
-        sendtoClient("Cannot find account!\n", sockfd);
-        return 1;
-    }
     return 1;
 }

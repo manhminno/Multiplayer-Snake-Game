@@ -385,12 +385,50 @@ void* gameplay(void* arg){
                         c[1] = '\0';
                     }
                     strcat(information, c);
-                    // printf("%s\n", information);
                     write(fd, information, 256);
                     xxx = read(fd, &recv_data, 256);
                     if(xxx == 0) break;
                     if(strcmp(recv_data, "3") == 0){
                         information[0] = '\0';
+                        goto back;
+                    }
+                }
+                else if(strcmp(recv_data, "4") == 0){
+                    sortListStatus(&l);
+                    User *user_tmp = l.pHead;
+                    char information[256];
+                    for(int i = 0; i < 9; i++){
+                        strcat(information, "_");
+                        strcat(information, user_tmp->usename);
+                        strcat(information, "_");
+                        char c[3]; 
+                        if(user_tmp->status > 9){
+                            c[0] = user_tmp->status/10 + '0';
+                            c[1] = user_tmp->status - 10*(user_tmp->status/10) + '0';
+                            c[2] = '\0';
+                        }
+                        else{
+                            c[0] = user_tmp->status + '0';
+                            c[1] = '\0';
+                        }
+                        strcat(information, c);
+                        strcat(information, "_");
+                        if(user_tmp->win_times > 9){
+                            c[0] = user_tmp->win_times/10 + '0';
+                            c[1] = user_tmp->win_times - 10*(user_tmp->win_times/10) + '0';
+                            c[2] = '\0';
+                        }
+                        else{
+                            c[0] = user_tmp->win_times + '0';
+                            c[1] = '\0';
+                        }
+                        strcat(information, c);
+                        write(fd, information, 256);
+                        // printf("%s\n", information);
+                        user_tmp = user_tmp->pNext;
+                        information[0] = '\0';
+                    }
+                    if(strcmp(recv_data, "4") == 0){
                         goto back;
                     }
                 }
