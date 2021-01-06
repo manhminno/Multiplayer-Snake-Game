@@ -134,6 +134,7 @@ void showProfile(char user[]){
 }
 
 void sign_to_server(int sockfd){
+    int choice_lb;
     char test[256];
     char choice[2];
     char usename[256];
@@ -290,48 +291,116 @@ void sign_to_server(int sockfd){
                             signup = 0;
                             write(sockfd, choice, 2);
                             Snake();
-                            printf(" ______________________Leaderboard______________________ \n");
-                            printf("| Top |    Account    | Played-times |Won-times| PW-rate|\n");
-                            for(int i = 0; i < 9; i++){
-                                read(sockfd, &test, 256);
-                                char *token;
-                                char tmp[256];
-                                float playedtimes;
-                                float wontimes;
-                                float pw;
-                                const char space[2] = "_";
-                                if(i<3){
-                                    if(i == 0) printf("***%d***\t", i+1);
-                                    else if(i == 1) printf(" **%d**\t", i+1);
-                                    else if(i == 2) printf("  *%d*\t", i+1);
-                                }
-                                else printf("  [%d]\t", i+1);
-                                token = strtok(test, space);
-                                strcpy(tmp, token);
-                                printf("%-22s", tmp);
-                                token = strtok(NULL, space);
-                                strcpy(tmp, token);
-                                if(strlen(tmp) > 1){
-                                    playedtimes = (tmp[0] - '0')*10 + (tmp[1] - '0');
-                                }
-                                else playedtimes = tmp[0] - '0';
-                                printf("%-11s", tmp);
-                                token = strtok(NULL, space);
-                                strcpy(tmp, token);
-                                if(strlen(tmp) > 1){
-                                    wontimes = (tmp[0] - '0')*10 + (tmp[1] - '0');
-                                }
-                                else wontimes = tmp[0] - '0';
-                                printf("%-9s", tmp);
-                                if(wontimes == 0) pw = 0;
-                                else pw = playedtimes/wontimes;
-                                printf("%.2f\n", pw);
-                                // printf("%s\n", test);
+                            printf(" ___________________Leaderboard___________________ \n");
+                            printf("|    => [1]. Ranking by number of played-times    |\n");
+                            printf("|    => [2]. Ranking by number of won-times       |\n");
+                            printf("|_________________________________________________|\n");
+                            printf("===> ");
+                            scanf("%d", &choice_lb);
+                            while(choice_lb < 1 || choice_lb >2){
+                                Snake();
+                                printf(" ___________________Leaderboard___________________ \n");
+                                printf("|    => [1]. Ranking by number of played-times    |\n");
+                                printf("|    => [2]. Ranking by number of won-times       |\n");
+                                printf("|_________________________________________________|\n");
+                                printf("===> ");
+                                __fpurge(stdin);
+                                scanf("%d", &choice_lb);
                             }
-                            printf("Press enter to continue...");
-                            getchar();
-                            write(sockfd, choice, 2);                      
-                            goto back;
+                            if(choice_lb == 1){
+                                write(sockfd, "1", 2);
+                                Snake();
+                                printf(" ______________________Leaderboard______________________ \n");
+                                printf("| Top |    Account    | Played-times |Won-times| PW-rate|\n");
+                                for(int i = 0; i < 9; i++){
+                                    read(sockfd, &test, 256);
+                                    char *token;
+                                    char tmp[256];
+                                    float playedtimes;
+                                    float wontimes;
+                                    float pw;
+                                    const char space[2] = "_";
+                                    if(i<3){
+                                        if(i == 0) printf("***%d***\t", i+1);
+                                        else if(i == 1) printf(" **%d**\t", i+1);
+                                        else if(i == 2) printf("  *%d*\t", i+1);
+                                    }
+                                    else printf("  [%d]\t", i+1);
+                                    token = strtok(test, space);
+                                    strcpy(tmp, token);
+                                    printf("%-22s", tmp);
+                                    token = strtok(NULL, space);
+                                    strcpy(tmp, token);
+                                    if(strlen(tmp) > 1){
+                                        playedtimes = (tmp[0] - '0')*10 + (tmp[1] - '0');
+                                    }
+                                    else playedtimes = tmp[0] - '0';
+                                    printf("%-11s", tmp);
+                                    token = strtok(NULL, space);
+                                    strcpy(tmp, token);
+                                    if(strlen(tmp) > 1){
+                                        wontimes = (tmp[0] - '0')*10 + (tmp[1] - '0');
+                                    }
+                                    else wontimes = tmp[0] - '0';
+                                    printf("%-9s", tmp);
+                                    if(wontimes == 0) pw = 0;
+                                    else pw = playedtimes/wontimes;
+                                    printf("%.2f\n", pw);
+                                    // printf("%s\n", test);
+                                }
+                                printf("Press enter to continue...");
+                                __fpurge(stdin);
+                                getchar();
+                                write(sockfd, choice, 2);                      
+                                goto back;
+                            }
+                            else if(choice_lb == 2){
+                                write(sockfd, "2", 2);
+                                Snake();
+                                printf(" ______________________Leaderboard______________________ \n");
+                                printf("| Top |    Account    | Played-times |Won-times| PW-rate|\n");
+                                for(int i = 0; i < 9; i++){
+                                    read(sockfd, &test, 256);
+                                    char *token;
+                                    char tmp[256];
+                                    float playedtimes;
+                                    float wontimes;
+                                    float pw;
+                                    const char space[2] = "_";
+                                    if(i<3){
+                                        if(i == 0) printf("***%d***\t", i+1);
+                                        else if(i == 1) printf(" **%d**\t", i+1);
+                                        else if(i == 2) printf("  *%d*\t", i+1);
+                                    }
+                                    else printf("  [%d]\t", i+1);
+                                    token = strtok(test, space);
+                                    strcpy(tmp, token);
+                                    printf("%-22s", tmp);
+                                    token = strtok(NULL, space);
+                                    strcpy(tmp, token);
+                                    if(strlen(tmp) > 1){
+                                        playedtimes = (tmp[0] - '0')*10 + (tmp[1] - '0');
+                                    }
+                                    else playedtimes = tmp[0] - '0';
+                                    printf("%-11s", tmp);
+                                    token = strtok(NULL, space);
+                                    strcpy(tmp, token);
+                                    if(strlen(tmp) > 1){
+                                        wontimes = (tmp[0] - '0')*10 + (tmp[1] - '0');
+                                    }
+                                    else wontimes = tmp[0] - '0';
+                                    printf("%-9s", tmp);
+                                    if(wontimes == 0) pw = 0;
+                                    else pw = playedtimes/wontimes;
+                                    printf("%.2f\n", pw);
+                                    // printf("%s\n", test);
+                                }
+                                printf("Press enter to continue...");
+                                __fpurge(stdin);
+                                getchar();
+                                write(sockfd, choice, 2);                      
+                                goto back;
+                            }
                         default:
                             break;
                     }

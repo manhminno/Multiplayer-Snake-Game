@@ -253,11 +253,12 @@ void* gameplay(void* arg){
         int xxx = read(fd, &recv_data, 2);
         if(xxx == 0) break;
         recv_data[xxx] = '\0';
-        printf("Receive from client in socket %d: %s\n", fd, recv_data);
+        printf("Received from client in socket %d: %s\n", fd, recv_data);
         if(strlen(recv_data) == 0){
             break;
         }
         if(strcmp(recv_data, "1") == 0){
+            printf("Received from client in socket %d: Register", fd);
             xxx = read(fd, &usename, 256);
             if(xxx == 0){
                 break;
@@ -274,8 +275,8 @@ void* gameplay(void* arg){
                     break;
                 }
                 password[xxx] = '\0';
-                printf("Receive usename from client in socket %d: %s\n", fd, usename);
-                printf("Receive passwork from client in socket %d: %s\n", fd, password);
+                printf("Received usename from client in socket %d: %s\n", fd, usename);
+                printf("Received password from client in socket %d: %s\n", fd, password);
                 int status = 0;
                 int win_times = 0;
                 User *p = makeUser(usename, password, status, win_times);
@@ -284,6 +285,7 @@ void* gameplay(void* arg){
             }
         }
         else if(strcmp(recv_data, "2") == 0){
+            printf("Received from client in socket %d: Login\n", fd);
             xxx = read(fd, &usename, 256);
             if(xxx == 0){
                 break;
@@ -319,6 +321,7 @@ void* gameplay(void* arg){
                     break;
                 }
                 if(strcmp(recv_data, "1") == 0){
+                    printf("Received from client in socket %d: Join waitting-room\n", fd);
                     strcat(room, "_");
                     strcat(room, usename);
                     if(host[0] == '\0') strcpy(host, usename);
@@ -353,6 +356,7 @@ void* gameplay(void* arg){
                     break;
                 }
                 else if(strcmp(recv_data, "2") == 0){
+                    printf("Received from client in socket %d: Change password\n", fd);
                     char new[256];
                     xxx = read(fd, &new, 256);
                     if(xxx == 0) break;
@@ -362,6 +366,7 @@ void* gameplay(void* arg){
                     goto back;
                 }
                 else if(strcmp(recv_data, "3") == 0){
+                    printf("Received from client in socket %d: Show profile\n", fd);
                     char information[256];
                     strcat(information, "_");
                     strcat(information, tmp->usename);
@@ -397,44 +402,90 @@ void* gameplay(void* arg){
                     }
                 }
                 else if(strcmp(recv_data, "4") == 0){
-                    sortListStatus(&l);
-                    User *user_tmp = l.pHead;
-                    char information[256];
-                    for(int i = 0; i < 9; i++){
-                        strcat(information, "_");
-                        strcat(information, user_tmp->usename);
-                        strcat(information, "_");
-                        char c[3]; 
-                        if(user_tmp->status > 9){
-                            c[0] = user_tmp->status/10 + '0';
-                            c[1] = user_tmp->status - 10*(user_tmp->status/10) + '0';
-                            c[2] = '\0';
-                        }
-                        else{
-                            c[0] = user_tmp->status + '0';
-                            c[1] = '\0';
-                        }
-                        strcat(information, c);
-                        strcat(information, "_");
-                        if(user_tmp->win_times > 9){
-                            c[0] = user_tmp->win_times/10 + '0';
-                            c[1] = user_tmp->win_times - 10*(user_tmp->win_times/10) + '0';
-                            c[2] = '\0';
-                        }
-                        else{
-                            c[0] = user_tmp->win_times + '0';
-                            c[1] = '\0';
-                        }
-                        strcat(information, c);
-                        write(fd, information, 256);
-                        // printf("%s\n", information);
-                        user_tmp = user_tmp->pNext;
-                        information[0] = '\0';
-                    }
+                    printf("Received from client in socket %d: Show leaderboard\n", fd);
                     xxx = read(fd, &recv_data, 256);
                     if(xxx == 0) break;
-                    if(strcmp(recv_data, "4") == 0){
-                        goto back;
+                    if(strcmp(recv_data, "1") == 0){
+                        sortListStatus(&l);
+                        User *user_tmp = l.pHead;
+                        char information[256];
+                        for(int i = 0; i < 9; i++){
+                            strcat(information, "_");
+                            strcat(information, user_tmp->usename);
+                            strcat(information, "_");
+                            char c[3]; 
+                            if(user_tmp->status > 9){
+                                c[0] = user_tmp->status/10 + '0';
+                                c[1] = user_tmp->status - 10*(user_tmp->status/10) + '0';
+                                c[2] = '\0';
+                            }
+                            else{
+                                c[0] = user_tmp->status + '0';
+                                c[1] = '\0';
+                            }
+                            strcat(information, c);
+                            strcat(information, "_");
+                            if(user_tmp->win_times > 9){
+                                c[0] = user_tmp->win_times/10 + '0';
+                                c[1] = user_tmp->win_times - 10*(user_tmp->win_times/10) + '0';
+                                c[2] = '\0';
+                            }
+                            else{
+                                c[0] = user_tmp->win_times + '0';
+                                c[1] = '\0';
+                            }
+                            strcat(information, c);
+                            write(fd, information, 256);
+                            // printf("%s\n", information);
+                            user_tmp = user_tmp->pNext;
+                            information[0] = '\0';
+                        }
+                        xxx = read(fd, &recv_data, 256);
+                        if(xxx == 0) break;
+                        if(strcmp(recv_data, "4") == 0){
+                            goto back;
+                        }
+                    }
+                    else if(strcmp(recv_data, "2") == 0){
+                        sortListStatus(&l);
+                        User *user_tmp = l.pHead;
+                        char information[256];
+                        for(int i = 0; i < 9; i++){
+                            strcat(information, "_");
+                            strcat(information, user_tmp->usename);
+                            strcat(information, "_");
+                            char c[3]; 
+                            if(user_tmp->status > 9){
+                                c[0] = user_tmp->status/10 + '0';
+                                c[1] = user_tmp->status - 10*(user_tmp->status/10) + '0';
+                                c[2] = '\0';
+                            }
+                            else{
+                                c[0] = user_tmp->status + '0';
+                                c[1] = '\0';
+                            }
+                            strcat(information, c);
+                            strcat(information, "_");
+                            if(user_tmp->win_times > 9){
+                                c[0] = user_tmp->win_times/10 + '0';
+                                c[1] = user_tmp->win_times - 10*(user_tmp->win_times/10) + '0';
+                                c[2] = '\0';
+                            }
+                            else{
+                                c[0] = user_tmp->win_times + '0';
+                                c[1] = '\0';
+                            }
+                            strcat(information, c);
+                            write(fd, information, 256);
+                            // printf("%s\n", information);
+                            user_tmp = user_tmp->pNext;
+                            information[0] = '\0';
+                        }
+                        xxx = read(fd, &recv_data, 256);
+                        if(xxx == 0) break;
+                        if(strcmp(recv_data, "4") == 0){
+                            goto back;
+                        }
                     }
                 }
             }
