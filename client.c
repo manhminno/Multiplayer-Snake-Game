@@ -133,7 +133,7 @@ void showProfile(char user[]){
     printf(">>PW-rate     : %.2f\n", pw);
 }
 
-void sign_to_server(int sockfd){
+int sign_to_server(int sockfd){
     int choice_lb;
     char test[256];
     char choice[2];
@@ -227,11 +227,12 @@ void sign_to_server(int sockfd){
                     printf("|             => [2]. Change password             |\n");
                     printf("|             => [3]. Show profile                |\n");
                     printf("|             => [4]. Show leaderboard            |\n");
+                    printf("|             => [5]. Quit game                   |\n");
                     printf("|_________________________________________________|\n");
                     printf("===> ");
                     __fpurge(stdin);
                     gets(choice);
-                    while(strlen(choice) == 0){
+                    while(strlen(choice) == 0 || choice[0] < '1' || choice[0] > '5'){
                         printf("===> ");
                         __fpurge(stdin);
                         gets(choice);
@@ -262,7 +263,7 @@ void sign_to_server(int sockfd){
                                     write(sockfd, test, 256);
                                 }
                                 read(sockfd, &test, 256);
-                                if(strcmp(test, "start") == 0) return;
+                                if(strcmp(test, "start") == 0) return 1;
                             }
                         case 2:
                             write(sockfd, choice, 2);
@@ -404,6 +405,12 @@ void sign_to_server(int sockfd){
                                 write(sockfd, choice, 2);                      
                                 goto back;
                             }
+                        case 5:
+                            signup = 0;
+                            write(sockfd, choice, 2);
+                            return 0;
+                            write(sockfd, choice, 2);                      
+                            goto back;
                         default:
                             break;
                     }
@@ -415,7 +422,7 @@ void sign_to_server(int sockfd){
                 break;
         }
     }
-    return;
+    return 1;
 }
 
 void* write_to_server(void* arg){
@@ -525,8 +532,8 @@ int main(int argc, char *argv[]){
     //Attempt connection with server
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
         error("ERROR connecting");
-    sign_to_server(sockfd);
-
+    int check_play = sign_to_server(sockfd);
+    if(check_play == 0) return 0;
 
     printf("Tro choi se bat dau sau: 5\n");
     sleep(1);

@@ -246,6 +246,7 @@ void* gameplay(void* arg){
     InitList(&l);
     readFile("nguoidung.txt", &l);
     int fd = *(int*) arg; 
+    int player_no = fd-3;
     char recv_data[256];
     bzero(&recv_data, 12);
     int check_host = 0;
@@ -488,6 +489,12 @@ void* gameplay(void* arg){
                         }
                     }
                 }
+                else if(strcmp(recv_data, "5") == 0){
+                    printf("Received from client in socket %d: Quit game\n", fd);
+                    if(strcmp(recv_data, "5") == 0){
+                        goto end;
+                    }
+                }
             }
         }
         // break;
@@ -520,7 +527,8 @@ void* gameplay(void* arg){
     }
     // free(room);
     //Determine player number from file descriptor argument
-    int player_no = fd-3;
+    // end:
+    end:
     printf("Player %d had connected!\n", player_no);
 
     //Find three consecutive zeros in map for starting snake position
@@ -656,7 +664,6 @@ void* gameplay(void* arg){
             default: break;
         }   
     }
-
     if(player_snake->length == WINNER_LENGTH){
         fprintf(stderr, "Player %d da thang!\n", player_no);
         tmp->win_times += 1;
