@@ -260,10 +260,7 @@ void sign_to_server(int sockfd){
                                     write(sockfd, test, 256);
                                 }
                                 read(sockfd, &test, 256);
-                                if(strcmp(test, "start") == 0){
-                                    // free(test2);
-                                    return;
-                                }
+                                if(strcmp(test, "start") == 0) return;
                             }
                         case 2:
                             write(sockfd, choice, 2);

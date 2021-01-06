@@ -30,6 +30,12 @@ int             map_size = HEIGHT * WIDTH * sizeof(game_map[0][0]);
 pthread_mutex_t map_lock = PTHREAD_MUTEX_INITIALIZER;   
 int             someone_won = 0;
 
+char *room;
+int start = 0;
+int t1 = 5;
+int t2 = 5;
+char host[256];
+
 //Direction key types
 typedef enum{
     UP    = UP_KEY, 
@@ -230,13 +236,9 @@ void ctrl_c_handler(){
     exit(0);
 }
 
-// char room[256];
-char *room;
-int start = 0;
-int t1 = 5;
-int t2 = 5;
 //Thread gameplay function
 void* gameplay(void* arg){ 
+    if(strlen(room) == 0) host[0] = '\0';
     User *tmp;
     char usename[256];
     char password[256];
@@ -246,6 +248,7 @@ void* gameplay(void* arg){
     int fd = *(int*) arg; 
     char recv_data[256];
     bzero(&recv_data, 12);
+    int check_host = 0;
     while(1){
         int xxx = read(fd, &recv_data, 2);
         if(xxx == 0) break;
@@ -318,6 +321,7 @@ void* gameplay(void* arg){
                 if(strcmp(recv_data, "1") == 0){
                     strcat(room, "_");
                     strcat(room, usename);
+                    if(host[0] == '\0') strcpy(host, usename);
                     // printf("%s\n", room);
                     // read(fd, &recv_data, 2);
                     write(fd, room, 256);
@@ -326,13 +330,12 @@ void* gameplay(void* arg){
                         if(xxx == 0){
                             break;
                         }
-                        // printf("nhan %s\n",recv_data);
-                        if(strcmp(recv_data, "S") == 0){
+                        if(strcmp(recv_data, "S") == 0 || strcmp(recv_data, "s") == 0){
                             strcpy(recv_data, "start");
                             write(fd, recv_data, 256);
                             start = 1;
-                            // strcpy(room, "");
                             sleep(t2);
+                            check_host = 1;
                             break;
                         }
                         if(start == 1){
@@ -428,6 +431,8 @@ void* gameplay(void* arg){
                         user_tmp = user_tmp->pNext;
                         information[0] = '\0';
                     }
+                    xxx = read(fd, &recv_data, 256);
+                    if(xxx == 0) break;
                     if(strcmp(recv_data, "4") == 0){
                         goto back;
                     }
@@ -440,9 +445,29 @@ void* gameplay(void* arg){
         tmp->status += 1;
         writeFile("nguoidung.txt", l);
     }
-    start = 0;
+    // printf("%s\n", host);
+    if(start == 1) room[0] = '\0';
+    if(check_host == 0 && strcmp(tmp->usename, host) == 0){
+        start = 1;
+        room[0] = '\0';
+        host[0] = '\0';
+        check_host = 0;
+    }
+    else{
+        if(host[0] != '\0'){
+            for(int i =  strlen(room)-1; i >= 0; i--){
+                if(room[i] != '_') room[i] = '\0';
+                else{
+                    room[i] = '\0';
+                    break;
+                }
+            }
+        }
+        start = 0;
+        host[0] = '\0';
+        check_host = 0;
+    }
     // free(room);
-    room[0] = '\0';
     //Determine player number from file descriptor argument
     int player_no = fd-3;
     printf("Player %d had connected!\n", player_no);
