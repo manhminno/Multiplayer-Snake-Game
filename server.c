@@ -447,7 +447,7 @@ void* gameplay(void* arg){
                         }
                     }
                     else if(strcmp(recv_data, "2") == 0){
-                        sortListStatus(&l);
+                        sortListWontimes(&l);
                         User *user_tmp = l.pHead;
                         char information[256];
                         for(int i = 0; i < 9; i++){

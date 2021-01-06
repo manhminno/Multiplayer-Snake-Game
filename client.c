@@ -140,6 +140,7 @@ void sign_to_server(int sockfd){
     char usename[256];
     char password[256];
     char tmp[256];
+    char tmp2[256];
     int signup = 0;
     // List l;
     // InitList(&l);
@@ -358,7 +359,7 @@ void sign_to_server(int sockfd){
                                 write(sockfd, "2", 2);
                                 Snake();
                                 printf(" ______________________Leaderboard______________________ \n");
-                                printf("| Top |    Account    | Played-times |Won-times| PW-rate|\n");
+                                printf("| Top |    Account    |Won-times| Played-times | PW-rate|\n");
                                 for(int i = 0; i < 9; i++){
                                     read(sockfd, &test, 256);
                                     char *token;
@@ -375,21 +376,23 @@ void sign_to_server(int sockfd){
                                     else printf("  [%d]\t", i+1);
                                     token = strtok(test, space);
                                     strcpy(tmp, token);
-                                    printf("%-22s", tmp);
+                                    printf("%-19s", tmp);
                                     token = strtok(NULL, space);
                                     strcpy(tmp, token);
                                     if(strlen(tmp) > 1){
                                         playedtimes = (tmp[0] - '0')*10 + (tmp[1] - '0');
                                     }
                                     else playedtimes = tmp[0] - '0';
-                                    printf("%-11s", tmp);
+                                    // printf("%-11s", tmp);
+                                    strcpy(tmp2, tmp);
                                     token = strtok(NULL, space);
                                     strcpy(tmp, token);
                                     if(strlen(tmp) > 1){
                                         wontimes = (tmp[0] - '0')*10 + (tmp[1] - '0');
                                     }
                                     else wontimes = tmp[0] - '0';
-                                    printf("%-9s", tmp);
+                                    printf("%-13s", tmp);
+                                    printf("%-10s", tmp2);
                                     if(wontimes == 0) pw = 0;
                                     else pw = playedtimes/wontimes;
                                     printf("%.2f\n", pw);

@@ -186,7 +186,7 @@ void sortListWontimes(List *clas){
         p = clas->pHead;
         clas->pHead = clas->pHead->pNext;
         p->pNext = NULL;
-        if(p->status >= tag->status) {
+        if(p->win_times >= tag->win_times) {
             addUser(&stu1, p);
         }
         else addUser(&stu2, p);
