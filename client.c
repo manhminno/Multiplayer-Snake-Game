@@ -253,8 +253,9 @@ int sign_to_server(int sockfd){
                                 if(strcmp(usename, test2) == 0){
                                     // free(test2);
                                     printf("\n You are host of the room, let's start game!\n");
-                                    printf("        =>[S]. Start game\n");
-                                    printf("        =>[T]. Waiting for more players\n");
+                                    printf("        Press [S] to start game\n");
+                                    printf("        Press [Q] to quit game!\n");
+                                    printf(" Press any key to wait for more players...\n");
                                     printf("=>");
                                     gets(test);
                                     write(sockfd, test, 256);
@@ -264,6 +265,7 @@ int sign_to_server(int sockfd){
                                 }
                                 read(sockfd, &test, 256);
                                 if(strcmp(test, "start") == 0) return 1;
+                                else if(strcmp(test, "quit") == 0) return 0;
                             }
                         case 2:
                             write(sockfd, choice, 2);
