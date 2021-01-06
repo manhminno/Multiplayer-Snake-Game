@@ -236,6 +236,25 @@ void ctrl_c_handler(){
     exit(0);
 }
 
+void processRoom(char s[], char name[]){
+    char tmp[256];
+    const char space[2] = "_";
+    char *token;
+    token = strtok(s, space);
+    char room_tmp[256];
+    room_tmp[0] = '\0';
+    strcat(room_tmp, "_");
+    while(token != NULL){
+        strcpy(tmp, token);
+        if(strcmp(tmp, name) != 0){
+            strcat(room_tmp, tmp);
+        }
+        token = strtok(NULL, space);
+        if(token) strcat(room_tmp, "_");
+    }
+    strcpy(s, room_tmp);
+}
+
 //Thread gameplay function
 void* gameplay(void* arg){ 
     if(strlen(room) == 0) host[0] = '\0';
@@ -340,6 +359,14 @@ void* gameplay(void* arg){
                             start = 1;
                             sleep(t2);
                             check_host = 1;
+                            break;
+                        }
+                        else if(strcmp(recv_data, "Q") == 0 || strcmp(recv_data, "q") == 0){
+                            strcpy(recv_data, "quit");
+                            write(fd, recv_data, 256);
+                            processRoom(room, tmp->usename);
+                            if(strlen(room) == 1) room = '\0';
+                            goto end;
                             break;
                         }
                         if(start == 1){
@@ -665,7 +692,7 @@ void* gameplay(void* arg){
         }   
     }
     if(player_snake->length == WINNER_LENGTH){
-        fprintf(stderr, "Player %d da thang!\n", player_no);
+        fprintf(stderr, "Player %d had won!\n", player_no);
         tmp->win_times += 1;
         writeFile("nguoidung.txt", l);
         kill_snake(player_snake);
@@ -673,7 +700,7 @@ void* gameplay(void* arg){
         return 0;
     }
     else{
-        fprintf(stderr, "Player %d thoat game.\n", player_no);
+        fprintf(stderr, "Player %d had exited game!\n", player_no);
         kill_snake(player_snake);
         close(fd);  
         return 0;
