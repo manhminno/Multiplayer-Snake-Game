@@ -173,6 +173,42 @@ void sortListStatus(List *clas){
     }
 }
 
+void sortListWontimes(List *clas){
+    List stu1, stu2;
+    if(clas->pHead == clas->pTail) return;
+    InitList(&stu1);  InitList(&stu2);
+    User *p;
+    User *tag;
+    tag = clas->pHead;
+    clas->pHead = clas->pHead->pNext;
+    tag->pNext = NULL;
+    while(clas->pHead != NULL){
+        p = clas->pHead;
+        clas->pHead = clas->pHead->pNext;
+        p->pNext = NULL;
+        if(p->status >= tag->status) {
+            addUser(&stu1, p);
+        }
+        else addUser(&stu2, p);
+    }
+    sortListWontimes(&stu1);
+    sortListWontimes(&stu2);
+    if(stu1.pHead != NULL){
+        clas->pHead = stu1.pHead;
+        stu1.pTail->pNext = tag;
+    }
+    else{
+        clas->pHead = tag;
+    }
+    tag->pNext = stu2.pHead;
+    if(stu2.pHead != NULL){
+        clas->pTail = stu2.pTail;
+    }
+    else{
+        clas->pTail = tag;
+    }
+}
+
 int checkBuff(char needCheck[], char *number, char *alpha){
 	int countNumber = 0, countAlphabet = 0;
 
