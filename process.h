@@ -7,8 +7,8 @@
 #include <ctype.h>
 #include <stdio_ext.h>
 
-#define MAX 255
-#define BUFF_SIZE 255
+#define MAX 256
+#define BUFF_SIZE 256
 
 int login_value = 0;
 char login_user[MAX];

@@ -14,12 +14,13 @@
 #include <netdb.h> 
 #include <stdio_ext.h>
 #include "process.h"
+#include <locale.h>
 
-#define BUFF_SIZE 255
-#define PORT        7070
+#define BUFF_SIZE   256
+#define PORT        5500
 #define HEIGHT      24
 #define WIDTH       80
-#define FRUIT       -1024
+#define FRUIT       -111
 #define BORDER      -99
 #define REFRESH     0.15
 #define WINNER      -94
@@ -87,7 +88,7 @@ char *showRoom(char room[]){
     printf(" __________________Waiting-room___________________ \n");
     const char space[2] = "_";
     char *token;
-    char tmp[256];
+    char tmp[BUFF_SIZE];
     int i = 1;
     char *main_player;
     token = strtok(room, space);
@@ -112,7 +113,7 @@ void showProfile(char user[]){
     printf(" _____________________Profile_____________________ \n");
     const char space[2] = "_";
     char *token;
-    char tmp[256];
+    char tmp[BUFF_SIZE];
     float playedtimes;
     float wontimes;
     float pw;
@@ -140,12 +141,12 @@ void showProfile(char user[]){
 
 int sign_to_server(int sockfd){
     int choice_lb;
-    char test[256];
+    char test[BUFF_SIZE];
     char choice[2];
-    char usename[256];
-    char password[256];
-    char tmp[256];
-    char tmp2[256];
+    char usename[BUFF_SIZE];
+    char password[BUFF_SIZE];
+    char tmp[BUFF_SIZE];
+    char tmp2[BUFF_SIZE];
     int signup = 0;
     // List l;
     // InitList(&l);
@@ -173,7 +174,7 @@ int sign_to_server(int sockfd){
                 printf("Username: ");
                 __fpurge(stdin);
                 gets(usename);
-                write(sockfd, usename, 256);
+                write(sockfd, usename, BUFF_SIZE);
                 read(sockfd, &test, 10);
                 if(strcmp(test, "NotOK") == 0){
                     // printf("Error! Username already exists!\n");
@@ -189,7 +190,7 @@ int sign_to_server(int sockfd){
                         __fpurge(stdin);
                         gets(password);
                     }
-                    write(sockfd, password, 256);
+                    write(sockfd, password, BUFF_SIZE);
                 }
                 signup = 1;
                 break;
@@ -199,7 +200,7 @@ int sign_to_server(int sockfd){
                 printf("Username: ");
                 __fpurge(stdin);
                 gets(usename);
-                write(sockfd, usename, 256);
+                write(sockfd, usename, BUFF_SIZE);
                 read(sockfd, &test, 10);
                 if(strcmp(test, "NotOK") == 0){
                     printf("Error! Wrong username!\n");
@@ -209,15 +210,15 @@ int sign_to_server(int sockfd){
                     printf("Password: ");
                     __fpurge(stdin);
                     gets(password);
-                    write(sockfd, password, 256);
-                    read(sockfd, &test, 256);
+                    write(sockfd, password, BUFF_SIZE);
+                    read(sockfd, &test, BUFF_SIZE);
                     while(strcmp(test, "OKchoi") != 0){
                         printf("Error! Wrong password!\n");
                         printf("Password: ");
                         __fpurge(stdin);
                         gets(password);
-                        write(sockfd, password, 256);
-                        read(sockfd, &test, 256);
+                        write(sockfd, password, BUFF_SIZE);
+                        read(sockfd, &test, BUFF_SIZE);
                     }
                     back:
                     Snake();
@@ -245,11 +246,11 @@ int sign_to_server(int sockfd){
                     // test = choice - '0';
                     // printf("%s\n", test);
                     int check2 = choice[0] - '0';
-                    char new_password[256];
+                    char new_password[BUFF_SIZE];
                     switch(check2){
                         case 1:
                             write(sockfd, choice, 2);
-                            read(sockfd, &test, 256);
+                            read(sockfd, &test, BUFF_SIZE);
                             if(strcmp(test, "maxplayers") == 0){
                                 printf("Please reconnect in a few minutes because the server is overloading ...\nWe apologize for this inconvenience!\n");
                                 sleep(5);
@@ -271,15 +272,15 @@ int sign_to_server(int sockfd){
                                     printf(" Press any key to wait for more players...\n");
                                     printf("=>");
                                     gets(test);
-                                    write(sockfd, test, 256);
+                                    write(sockfd, test, BUFF_SIZE);
                                 }else{
                                     printf("\n Game will be started by host: %s!\n", test2);
                                     printf(" Press [Ctr + C] to quit game!\n");
                                     printf(" Press any key to wait for more players...\n");
                                     strcpy(test, "accc");
-                                    write(sockfd, test, 256);
+                                    write(sockfd, test, BUFF_SIZE);
                                 }
-                                read(sockfd, &test, 256);
+                                read(sockfd, &test, BUFF_SIZE);
                                 if(strcmp(test, "start") == 0) return 1;
                                 else if(strcmp(test, "quit") == 0) return 0;
                             }
@@ -293,14 +294,14 @@ int sign_to_server(int sockfd){
                                 gets(new_password);
                             }
                             // printf("%s\n", new_password);
-                            write(sockfd, new_password, 256);
+                            write(sockfd, new_password, BUFF_SIZE);
                             signup = -3;
                             goto back;
                             break;
                         case 3:
                             signup = 0;
                             write(sockfd, choice, 2);
-                            read(sockfd, &test, 256);
+                            read(sockfd, &test, BUFF_SIZE);
                             // printf("%s\n", test);
                             showProfile(test);
                             printf("Press enter to continue...");
@@ -333,9 +334,9 @@ int sign_to_server(int sockfd){
                                 printf(" ______________________Leaderboard______________________ \n");
                                 printf("| Top |    Account    | Played-times |Won-times| PW-rate|\n");
                                 for(int i = 0; i < 9; i++){
-                                    read(sockfd, &test, 256);
+                                    read(sockfd, &test, BUFF_SIZE);
                                     char *token;
-                                    char tmp[256];
+                                    char tmp[BUFF_SIZE];
                                     float playedtimes;
                                     float wontimes;
                                     float pw;
@@ -380,9 +381,9 @@ int sign_to_server(int sockfd){
                                 printf(" ______________________Leaderboard______________________ \n");
                                 printf("| Top |    Account    |Won-times| Played-times | PW-rate|\n");
                                 for(int i = 0; i < 9; i++){
-                                    read(sockfd, &test, 256);
+                                    read(sockfd, &test, BUFF_SIZE);
                                     char *token;
-                                    char tmp[256];
+                                    char tmp[BUFF_SIZE];
                                     float playedtimes;
                                     float wontimes;
                                     float pw;
@@ -505,8 +506,8 @@ void* update_screen(void* arg){
                     attroff(COLOR_PAIR(colour));
                 }                
                 else if (current == FRUIT){ 
-                    attroff(COLOR_PAIR(colour));               
-                    mvprintw(i, j, "o");                    
+                    attroff(COLOR_PAIR(colour));
+                    mvprintw(i, j, "O");                    
                 }
             }
         }

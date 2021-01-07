@@ -10,13 +10,13 @@
 #include <netinet/in.h>
 #include "process.h"
 
-#define PORT                7070
+#define PORT                5500
 #define MAX_PLAYERS         100
 #define HEIGHT              24
 #define WIDTH               80
 #define MAX_SNAKE_LENGTH    HEIGHT * WIDTH
-#define WINNER_LENGTH       5
-#define FRUIT               104
+#define WINNER_LENGTH       15
+#define FRUIT               -111
 #define BORDER              -99
 #define WINNER              -94
 #define UP_KEY              'W'
@@ -32,8 +32,8 @@ int             someone_won = 0;
 
 char *room;
 int start = 0;
-int t1 = 5;
-int t2 = 5;
+int t1 = 3;
+int t2 = 4;
 char host[256];
 int number_players = 0;
 
@@ -593,7 +593,7 @@ void* gameplay(void* arg){
             success = 0;
 
         //Check if you are the winner
-        if(player_snake->length >= 5){
+        if(player_snake->length-3 >= WINNER_LENGTH){
             someone_won = player_no;
             pthread_mutex_lock(&map_lock);
             game_map[0][0] = WINNER;
@@ -692,7 +692,7 @@ void* gameplay(void* arg){
             default: break;
         }   
     }
-    if(player_snake->length == WINNER_LENGTH){
+    if(player_snake->length-3 == WINNER_LENGTH){
         fprintf(stderr, "Player %d had won!\n", player_no);
         tmp->win_times += 1;
         writeFile("nguoidung.txt", l);
