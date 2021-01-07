@@ -15,8 +15,10 @@
 #define HEIGHT              24
 #define WIDTH               80
 #define MAX_SNAKE_LENGTH    HEIGHT * WIDTH
-#define WINNER_LENGTH       15
+#define WINNER_LENGTH       10
 #define FRUIT               -111
+#define WALL                -1111
+#define WALL2               -1112
 #define BORDER              -99
 #define WINNER              -94
 #define UP_KEY              'W'
@@ -158,6 +160,54 @@ void add_fruit(){
     game_map[y][x] = FRUIT;
     pthread_mutex_unlock(&map_lock);
 }
+void add_wall(){
+    int x, y, a;
+    do{
+        y = rand() % (HEIGHT - 6) + 3;
+        x = rand() % (WIDTH - 6) + 3;
+    } while (game_map[y][x] != 0);
+    pthread_mutex_lock(&map_lock);
+    a = rand()%10;
+    while(a+y >= HEIGHT || a < 3){
+        a = rand()%10;
+    }
+    for(int i = 0; i < a; i++){
+        if(game_map[y+i][x] == 0)
+            game_map[y+i][x] = WALL;
+    }
+    pthread_mutex_unlock(&map_lock);
+}
+// void add_wall(){
+//     int x, y;
+//     do{
+//         y = rand() % (HEIGHT - 6) + 3;
+//         x = rand() % (WIDTH - 6) + 3;
+//     } while (game_map[y][x] != 0 && y+3 <= HEIGHT);
+//     pthread_mutex_lock(&map_lock);
+//     game_map[y][x] = WALL;
+//     game_map[y+1][x] = WALL;
+//     game_map[y+2][x] = WALL;
+//     game_map[y+3][x] = WALL;
+//     pthread_mutex_unlock(&map_lock);
+// } 
+
+void add_wall2(){
+    int x, y, a;
+    do{
+        y = rand() % (HEIGHT - 6) + 3;
+        x = rand() % (WIDTH - 6) + 3;
+    } while (game_map[y][x] != 0);
+    pthread_mutex_lock(&map_lock);
+    a = rand()%10;
+    while(a+x >= WIDTH || a < 3){
+        a = rand()%10;
+    }
+    for(int i = 0; i < a; i++){
+        if(game_map[y][x+i] == 0)
+            game_map[y][x+i] = WALL2;
+    }
+    pthread_mutex_unlock(&map_lock);
+} 
 
 //Function for a snake to eat a fruit in front of it
 void eat_fruit(snake* s, direction d){
@@ -731,9 +781,12 @@ int main(){
 
     //Randomly add five fruit
     srand(time(NULL));
-    for(i = 0; i < 3; i++)
+    for(i = 0; i < 5; i++)
         add_fruit();
-
+    for(i = 0; i < 3; i++)
+        add_wall();
+    for(i = 0; i < 4; i++)
+        add_wall2();
     //Create server socket
     socket_fds[0] = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fds[0] < 0) 

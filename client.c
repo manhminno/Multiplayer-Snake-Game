@@ -21,6 +21,8 @@
 #define HEIGHT      24
 #define WIDTH       80
 #define FRUIT       -111
+#define WALL        -1111
+#define WALL2       -1112
 #define BORDER      -99
 #define REFRESH     0.15
 #define WINNER      -94
@@ -494,7 +496,7 @@ void* update_screen(void* arg){
                     mvprintw(i, j, "  ");
                     attroff(COLOR_PAIR(colour));
                 }
-                else if ((current < 0) && (current != FRUIT)){
+                else if ((current < 0) && (current != FRUIT) && (current != WALL) && (current != WALL2)){
                     if(game_map[i-1][j] == -current)
                         mvprintw(i, j, "..");
                     else if(game_map[i+1][j] == -current)
@@ -508,6 +510,14 @@ void* update_screen(void* arg){
                 else if (current == FRUIT){ 
                     attroff(COLOR_PAIR(colour));
                     mvprintw(i, j, "O");                    
+                }
+                else if (current == WALL){ 
+                    attroff(COLOR_PAIR(colour));
+                    mvprintw(i, j, "|");                    
+                }
+                else if (current == WALL2){ 
+                    attroff(COLOR_PAIR(colour));
+                    mvprintw(i, j, "_");                    
                 }
             }
         }
