@@ -250,6 +250,13 @@ int sign_to_server(int sockfd){
                         case 1:
                             write(sockfd, choice, 2);
                             read(sockfd, &test, 256);
+                            if(strcmp(test, "maxplayers") == 0){
+                                printf("Please reconnect in a few minutes because the server is overloading ...\nWe apologize for this inconvenience!\n");
+                                sleep(5);
+                                printf("Please send issues to email : manhminno@gmail.com\n");
+                                sleep(4);
+                                return 0;
+                            }
                             while(1){
                                 // printf("%s", test);
                                 // printf("useeeeeerr: %s", usename);
@@ -573,10 +580,13 @@ int main(int argc, char *argv[]){
     init_pair(0, COLOR_WHITE, COLOR_BLUE);
     init_pair(1, COLOR_WHITE, COLOR_RED);
     init_pair(2, COLOR_WHITE, COLOR_GREEN);
-    init_pair(3, COLOR_BLACK, COLOR_YELLOW);
-    init_pair(4, COLOR_BLACK, COLOR_MAGENTA);
-    init_pair(5, COLOR_BLACK, COLOR_CYAN);
-    init_pair(6, COLOR_BLACK, COLOR_WHITE);
+    init_pair(3, COLOR_WHITE, COLOR_YELLOW);
+    init_pair(4, COLOR_WHITE, COLOR_MAGENTA);
+    init_pair(5, COLOR_WHITE, COLOR_CYAN);
+    init_pair(6, COLOR_BLACK, COLOR_YELLOW);
+    init_pair(7, COLOR_BLACK, COLOR_MAGENTA);
+    init_pair(8, COLOR_BLACK, COLOR_CYAN);
+    init_pair(9, COLOR_BLACK, COLOR_WHITE);
 
     mvprintw((HEIGHT-20)/2, (WIDTH-58)/2,"                          _");
     mvprintw((HEIGHT-20)/2 + 1, (WIDTH-58)/2," __                      | |");

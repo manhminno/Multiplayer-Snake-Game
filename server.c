@@ -11,7 +11,7 @@
 #include "process.h"
 
 #define PORT                7070
-#define MAX_PLAYERS         1024
+#define MAX_PLAYERS         100
 #define HEIGHT              24
 #define WIDTH               80
 #define MAX_SNAKE_LENGTH    HEIGHT * WIDTH
@@ -259,6 +259,7 @@ void processRoom(char s[], char name[]){
 
 //Thread gameplay function
 void* gameplay(void* arg){ 
+    if(number_players < 0) number_players = 0;
     if(strlen(room) == 0) host[0] = '\0';
     User *tmp;
     char usename[256];
@@ -280,10 +281,10 @@ void* gameplay(void* arg){
             break;
         }
         if(strcmp(recv_data, "1") == 0){
-            printf("Received from client in socket %d: Register", fd);
+            printf("Received from client in socket %d: Register\n", fd);
             xxx = read(fd, &usename, 256);
             if(xxx == 0){
-                break;
+                goto end;
             }
             usename[xxx] = '\0';
             tmp = checkUser(usename, l);
@@ -294,7 +295,7 @@ void* gameplay(void* arg){
                 write(fd, "OK", 10);
                 xxx = read(fd, &password, 256);
                 if(xxx == 0){
-                    break;
+                    goto end;
                 }
                 password[xxx] = '\0';
                 printf("Received usename from client in socket %d: %s\n", fd, usename);
@@ -350,6 +351,10 @@ void* gameplay(void* arg){
                     if(host[0] == '\0') strcpy(host, usename);
                     // printf("%s\n", room);
                     // read(fd, &recv_data, 2);
+                    if(number_players == 10){
+                        write(fd, "maxplayers", 256);
+                        goto end;
+                    }
                     write(fd, room, 256);
                     printf("||Number of players are accessing: %d||\n", number_players);
                     while(1){
@@ -372,6 +377,7 @@ void* gameplay(void* arg){
                             processRoom(room, tmp->usename);
                             if(strlen(room) == 1) room = '\0';
                             number_players -= 1;
+                            // printf("ssssss\n");
                             goto end;
                             break;
                         }
@@ -544,7 +550,7 @@ void* gameplay(void* arg){
     if(check_host == 0 && strcmp(tmp->usename, host) == 0){
         // start = 1;
         // room[0] = '\0';
-        // host[0] = '\0';
+        host[0] = '\0';
         // check_host = 0;
         processRoom(room, tmp->usename);
         // printf("%s---\n", room);
@@ -552,24 +558,15 @@ void* gameplay(void* arg){
         number_players -= 1;
     }
     else{
-        // if(host[0] != '\0'){
-        //     for(int i =  strlen(room)-1; i >= 0; i--){
-        //         if(room[i] != '_') room[i] = '\0';
-        //         else{
-        //             room[i] = '\0';
-        //             break;
-        //         }
-        //     }
-        // }
         processRoom(room, tmp->usename);
         start = 0;
-        // host[0] = '\0';
         check_host = 0;
     }
     // free(room);
     //Determine player number from file descriptor argument
     end:
-    if(!number_players) number_players -= 1;
+    if(number_players != 0) number_players -= 1;
+    printf("||Number of players are accessing: %d||\n", number_players);
     printf("Player %d had connected!\n", player_no);
 
     //Find three consecutive zeros in map for starting snake position
@@ -591,7 +588,6 @@ void* gameplay(void* arg){
     int  success = 1;
 
     while(success){
-
         //Check if someone won
         if(someone_won)
             success = 0;
@@ -701,7 +697,9 @@ void* gameplay(void* arg){
         tmp->win_times += 1;
         writeFile("nguoidung.txt", l);
         kill_snake(player_snake);
-        close(fd);  
+        close(fd); 
+        number_players = 0; 
+        host[0] = '\0';
         return 0;
     }
     else{
