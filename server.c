@@ -16,7 +16,7 @@
 #define WIDTH               80
 #define MAX_SNAKE_LENGTH    HEIGHT * WIDTH
 #define WINNER_LENGTH       5
-#define FRUIT               -1024
+#define FRUIT               104
 #define BORDER              -99
 #define WINNER              -94
 #define UP_KEY              'W'
@@ -35,6 +35,7 @@ int start = 0;
 int t1 = 5;
 int t2 = 5;
 char host[256];
+int number_players = 0;
 
 //Direction key types
 typedef enum{
@@ -250,9 +251,10 @@ void processRoom(char s[], char name[]){
             strcat(room_tmp, tmp);
         }
         token = strtok(NULL, space);
-        if(token) strcat(room_tmp, "_");
+        if(token && strlen(room_tmp) != 1) strcat(room_tmp, "_");
     }
-    strcpy(s, room_tmp);
+    if(room_tmp == NULL) s[0] = '\0';
+    else strcpy(s, room_tmp);
 }
 
 //Thread gameplay function
@@ -308,7 +310,7 @@ void* gameplay(void* arg){
             printf("Received from client in socket %d: Login\n", fd);
             xxx = read(fd, &usename, 256);
             if(xxx == 0){
-                break;
+                goto end;
             }
             usename[xxx] = '\0';
             tmp = checkUser(usename, l);
@@ -344,13 +346,16 @@ void* gameplay(void* arg){
                     printf("Received from client in socket %d: Join waitting-room\n", fd);
                     strcat(room, "_");
                     strcat(room, usename);
+                    number_players += 1;
                     if(host[0] == '\0') strcpy(host, usename);
                     // printf("%s\n", room);
                     // read(fd, &recv_data, 2);
                     write(fd, room, 256);
+                    printf("||Number of players are accessing: %d||\n", number_players);
                     while(1){
                         xxx = read(fd, &recv_data, 256);
                         if(xxx == 0){
+                            // goto end;
                             break;
                         }
                         if(strcmp(recv_data, "S") == 0 || strcmp(recv_data, "s") == 0){
@@ -366,6 +371,7 @@ void* gameplay(void* arg){
                             write(fd, recv_data, 256);
                             processRoom(room, tmp->usename);
                             if(strlen(room) == 1) room = '\0';
+                            number_players -= 1;
                             goto end;
                             break;
                         }
@@ -531,31 +537,39 @@ void* gameplay(void* arg){
         writeFile("nguoidung.txt", l);
     }
     // printf("%s\n", host);
-    if(start == 1) room[0] = '\0';
-    if(check_host == 0 && strcmp(tmp->usename, host) == 0){
-        start = 1;
+    if(start == 1){
         room[0] = '\0';
-        host[0] = '\0';
-        check_host = 0;
+        number_players = 0;
+    }
+    if(check_host == 0 && strcmp(tmp->usename, host) == 0){
+        // start = 1;
+        // room[0] = '\0';
+        // host[0] = '\0';
+        // check_host = 0;
+        processRoom(room, tmp->usename);
+        // printf("%s---\n", room);
+        if(strlen(room) == 1) room[0] = '\0';
+        number_players -= 1;
     }
     else{
-        if(host[0] != '\0'){
-            for(int i =  strlen(room)-1; i >= 0; i--){
-                if(room[i] != '_') room[i] = '\0';
-                else{
-                    room[i] = '\0';
-                    break;
-                }
-            }
-        }
+        // if(host[0] != '\0'){
+        //     for(int i =  strlen(room)-1; i >= 0; i--){
+        //         if(room[i] != '_') room[i] = '\0';
+        //         else{
+        //             room[i] = '\0';
+        //             break;
+        //         }
+        //     }
+        // }
+        processRoom(room, tmp->usename);
         start = 0;
-        host[0] = '\0';
+        // host[0] = '\0';
         check_host = 0;
     }
     // free(room);
     //Determine player number from file descriptor argument
-    // end:
     end:
+    if(!number_players) number_players -= 1;
     printf("Player %d had connected!\n", player_no);
 
     //Find three consecutive zeros in map for starting snake position
@@ -622,12 +636,10 @@ void* gameplay(void* arg){
                 if((game_map[player_snake->head.y-1][player_snake->head.x] == 0) && 
                     !(game_map[player_snake->head.y-1][player_snake->head.x+1] == FRUIT)){
                     move_snake(player_snake, UP);
-                    // printf("Player %d UP!\n",player_no);
                 }
                 else if((game_map[player_snake->head.y-1][player_snake->head.x] == FRUIT) || 
                     (game_map[player_snake->head.y-1][player_snake->head.x+1] == FRUIT)){
                     eat_fruit(player_snake, UP);
-                    // printf("Plejer %d kiel frotta!\n",player_no);
                 }
                 else{
                     move_snake(player_snake, LEFT);
@@ -640,12 +652,10 @@ void* gameplay(void* arg){
                 if((game_map[player_snake->head.y+1][player_snake->head.x] == 0)&& 
                     !(game_map[player_snake->head.y+1][player_snake->head.x+1] == FRUIT)){
                     move_snake(player_snake, DOWN);
-                    // printf("Player %d DOWN!\n\n",player_no);
                 }
                 else if((game_map[player_snake->head.y+1][player_snake->head.x] == FRUIT) || 
                     (game_map[player_snake->head.y+1][player_snake->head.x+1] == FRUIT)){
                     eat_fruit(player_snake, DOWN);
-                    // printf("Eat food!\n",player_no);
                 }
                 else{
                     move_snake(player_snake, DOWN);
@@ -657,11 +667,9 @@ void* gameplay(void* arg){
             case LEFT:{
                 if(game_map[player_snake->head.y][player_snake->head.x-1] == 0){
                     move_snake(player_snake, LEFT);
-                    // printf("Player %d LEFT!\n",player_no);
                 }
                 else if(game_map[player_snake->head.y][player_snake->head.x-1] == FRUIT){
                     eat_fruit(player_snake, LEFT);
-                    // printf("Eat food!\n",player_no);
 
                 }
                 else{
@@ -674,12 +682,9 @@ void* gameplay(void* arg){
             case RIGHT:{
                 if(game_map[player_snake->head.y][player_snake->head.x+1] == 0){
                     move_snake(player_snake, RIGHT);
-                    // printf("Player %d RIGHT!\n",player_no);
                 }
                 else if(game_map[player_snake->head.y][player_snake->head.x+1] == FRUIT){
                     eat_fruit(player_snake, RIGHT);
-                    // printf("Eat food!\n",player_no);
-
                 }
                 else{
                     move_snake(player_snake, RIGHT);

@@ -68,6 +68,11 @@ void Snake(){
     printf(" \\_______________________________________________/\n");
 }
 
+void ctrl_c_handler(){
+    printf("\nQuit game!.\n");
+    exit(0);
+}
+
 void Menu(){
     // Snake();
     printf(" _________________________________________________ \n");
@@ -249,6 +254,7 @@ int sign_to_server(int sockfd){
                                 // printf("%s", test);
                                 // printf("useeeeeerr: %s", usename);
                                 char *test2 = showRoom(test);
+
                                 // char c;
                                 if(strcmp(usename, test2) == 0){
                                     // free(test2);
@@ -260,6 +266,9 @@ int sign_to_server(int sockfd){
                                     gets(test);
                                     write(sockfd, test, 256);
                                 }else{
+                                    printf("\n Game will be started by host: %s!\n", test2);
+                                    printf(" Press [Ctr + C] to quit game!\n");
+                                    printf(" Press any key to wait for more players...\n");
                                     strcpy(test, "accc");
                                     write(sockfd, test, 256);
                                 }
@@ -522,7 +531,7 @@ int main(int argc, char *argv[]){
         fprintf(stderr,"ERROR, no such host.\n");
         exit(0);
     }
-    
+    signal(SIGINT, ctrl_c_handler);
     //Sets first n bytes of the area to zero    
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
