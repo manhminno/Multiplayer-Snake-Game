@@ -223,6 +223,7 @@ int sign_to_server(int sockfd){
                         read(sockfd, &test, BUFF_SIZE);
                     }
                     back:
+                    __fpurge(stdin);
                     Snake();
                     if(signup == -3){
                         printf("|       **Password changed successfully!**        |\n");
@@ -237,6 +238,10 @@ int sign_to_server(int sockfd){
                     printf("|             => [4]. Show leaderboard            |\n");
                     printf("|             => [5]. Quit game                   |\n");
                     printf("|_________________________________________________|\n");
+                    if(signup == -10){
+                        printf("Please reconnect in a few minutes because server is overloading ...\n");
+                        printf("            We apologize for this inconvenience!\n");
+                    }
                     printf("===> ");
                     __fpurge(stdin);
                     gets(choice);
@@ -260,12 +265,12 @@ int sign_to_server(int sockfd){
                                 sleep(4);
                                 return 0;
                             }
+                            else if(strcmp(test, "running") == 0){
+                                signup = -10;
+                                goto back;
+                            }
                             while(1){
-                                // printf("%s", test);
-                                // printf("useeeeeerr: %s", usename);
                                 char *test2 = showRoom(test);
-
-                                // char c;
                                 if(strcmp(usename, test2) == 0){
                                     // free(test2);
                                     printf("\n You are host of the room, let's start game!\n");
@@ -463,8 +468,8 @@ void* write_to_server(void* arg){
 void* update_screen(void* arg){    
     int  sockfd = *(int*) arg;
     int  bytes_read;
-    int  game_map[HEIGHT][WIDTH];
-    int  map_size = HEIGHT * WIDTH * sizeof(game_map[0][0]);
+    int  game_map[HEIGHT+10][WIDTH+10];
+    int  map_size = (HEIGHT+10) * (WIDTH+10) * sizeof(game_map[0][0]);
     char map_buffer[map_size];
     int  i, j, n;
 
@@ -485,14 +490,13 @@ void* update_screen(void* arg){
         box(win, 0, 0);
         refresh();
         wrefresh(win);
-
         //for each position in the array, check if it's a snake head or bodypart
         for(i = 1; i < HEIGHT-1; i++){
             for(j = 1; j < WIDTH-1; j++){
                 int current = game_map[i][j];
-                int colour = abs(current) % 7;
+                int colour = abs(current) % 10;
                 attron(COLOR_PAIR(colour)); 
-                if((current > 0) && (current != FRUIT)){               
+                if((current > 0) && (current != FRUIT) && current < 10000){               
                     mvprintw(i, j, "  ");
                     attroff(COLOR_PAIR(colour));
                 }
@@ -519,6 +523,39 @@ void* update_screen(void* arg){
                     attroff(COLOR_PAIR(colour));
                     mvprintw(i, j, "_");                    
                 }
+                mvprintw(1, WIDTH+2, "   |Score|"); 
+                for(int v = 1; v <= 10; v++){
+                    if(game_map[HEIGHT+v][WIDTH+2] >= 10000){
+                        if(v == 1){
+                            mvprintw(v+1, WIDTH+2, "Red Snake: %d", game_map[HEIGHT+v][WIDTH+2] - 10003); 
+                        }
+                        else if(v == 2){
+                            mvprintw(v+1, WIDTH+2, "Green Snake: %d", game_map[HEIGHT+v][WIDTH+2] - 10003); 
+                        }
+                        else if(v == 3){
+                            mvprintw(v+1, WIDTH+2, "Yellow Snake: %d", game_map[HEIGHT+v][WIDTH+2] - 10003); 
+                        }
+                        else if(v == 4){
+                            mvprintw(v+1, WIDTH+2, "Magenta Snake: %d", game_map[HEIGHT+v][WIDTH+2] - 10003); 
+                        }
+                        else if(v == 5){
+                            mvprintw(v+1, WIDTH+2, "Cyan Snake: %d", game_map[HEIGHT+v][WIDTH+2] - 10003); 
+                        }
+                        else if(v == 6){
+                            mvprintw(v+1, WIDTH+2, "B'Yellow Snake: %d", game_map[HEIGHT+v][WIDTH+2] - 10003); 
+                        }
+                        else if(v == 7){
+                            mvprintw(v+1, WIDTH+2, "B'Magenta Snake: %d", game_map[HEIGHT+v][WIDTH+2] - 10003); 
+                        }
+                        else if(v == 8){
+                            mvprintw(v+1, WIDTH+2, "B'Cyan Snake: %d", game_map[HEIGHT+v][WIDTH+2] - 10003); 
+                        }
+                        else if(v == 9){
+                            mvprintw(v+1, WIDTH+2, "B'White Snake: %d", game_map[HEIGHT+v][WIDTH+2] - 10003); 
+                        }
+                    }
+                }
+                
             }
         }
         refresh();
@@ -586,7 +623,6 @@ int main(int argc, char *argv[]){
 
     //Set window to new ncurses window
     win = newwin(HEIGHT, WIDTH, 0, 0);
-
     //Snake colours
     init_pair(0, COLOR_WHITE, COLOR_BLUE);
     init_pair(1, COLOR_WHITE, COLOR_RED);

@@ -27,14 +27,15 @@
 #define RIGHT_KEY           'D'
 
 //Game map
-int             game_map[HEIGHT][WIDTH];
-int             map_size = HEIGHT * WIDTH * sizeof(game_map[0][0]);
+int             game_map[HEIGHT+10][WIDTH+10];
+int             map_size = (HEIGHT+10) * (WIDTH+10) * sizeof(game_map[0][0]);
 pthread_mutex_t map_lock = PTHREAD_MUTEX_INITIALIZER;   
 int             someone_won = 0;
+int check_run = 0;
 
 char *room;
 int start = 0;
-int t1 = 3;
+int t1 = 5;
 int t2 = 4;
 char host[256];
 int number_players = 0;
@@ -177,19 +178,6 @@ void add_wall(){
     }
     pthread_mutex_unlock(&map_lock);
 }
-// void add_wall(){
-//     int x, y;
-//     do{
-//         y = rand() % (HEIGHT - 6) + 3;
-//         x = rand() % (WIDTH - 6) + 3;
-//     } while (game_map[y][x] != 0 && y+3 <= HEIGHT);
-//     pthread_mutex_lock(&map_lock);
-//     game_map[y][x] = WALL;
-//     game_map[y+1][x] = WALL;
-//     game_map[y+2][x] = WALL;
-//     game_map[y+3][x] = WALL;
-//     pthread_mutex_unlock(&map_lock);
-// } 
 
 void add_wall2(){
     int x, y, a;
@@ -210,7 +198,7 @@ void add_wall2(){
 } 
 
 //Function for a snake to eat a fruit in front of it
-void eat_fruit(snake* s, direction d){
+void eat_fruit(snake* s, direction d, int player_no){
     memmove(&(s->body_segment[1]), 
             &(s->body_segment[0]), 
             (s->length-2) * sizeof(coordinate));
@@ -255,10 +243,10 @@ void eat_fruit(snake* s, direction d){
     game_map[s->body_segment[0].y][s->body_segment[0].x] = s->player_no;
     pthread_mutex_unlock(&map_lock);
     s->length++;
+    game_map[HEIGHT+player_no][WIDTH+2] = s->length+10000;
     add_fruit();
 }
 
-//Stevens, chapter 12, page 428: Create detatched thread
 int make_thread(void* (*fn)(void *), void* arg){
     int             err;
     pthread_t       tid;
@@ -326,12 +314,12 @@ void* gameplay(void* arg){
         int xxx = read(fd, &recv_data, 2);
         if(xxx == 0) break;
         recv_data[xxx] = '\0';
-        printf("Received from client in socket %d: %s\n", fd, recv_data);
+        printf("Received from client in share-socket %d: %s\n", fd, recv_data);
         if(strlen(recv_data) == 0){
             break;
         }
         if(strcmp(recv_data, "1") == 0){
-            printf("Received from client in socket %d: Register\n", fd);
+            printf("Received from client in share-socket %d: Register\n", fd);
             xxx = read(fd, &usename, 256);
             if(xxx == 0){
                 goto end;
@@ -348,8 +336,8 @@ void* gameplay(void* arg){
                     goto end;
                 }
                 password[xxx] = '\0';
-                printf("Received usename from client in socket %d: %s\n", fd, usename);
-                printf("Received password from client in socket %d: %s\n", fd, password);
+                printf("Received usename from client in share-socket %d: %s\n", fd, usename);
+                printf("Received password from client in share-socket %d: %s\n", fd, password);
                 int status = 0;
                 int win_times = 0;
                 User *p = makeUser(usename, password, status, win_times);
@@ -358,7 +346,7 @@ void* gameplay(void* arg){
             }
         }
         else if(strcmp(recv_data, "2") == 0){
-            printf("Received from client in socket %d: Login\n", fd);
+            printf("Received from client in share-socket %d: Login\n", fd);
             xxx = read(fd, &usename, 256);
             if(xxx == 0){
                 goto end;
@@ -375,8 +363,8 @@ void* gameplay(void* arg){
                     break;
                 }
                 password[xxx] = '\0';
-                printf("Receive usename from client in socket %d: %s\n", fd, usename);
-                printf("Receive passwork from client in socket %d: %s\n", fd, password);
+                printf("Receive usename from client in share-socket %d: %s\n", fd, usename);
+                printf("Receive passwork from client in share-socket %d: %s\n", fd, password);
                 while(strcmp(tmp->password, password) != 0){
                     write(fd, "Password sai!", 256);
                     xxx = read(fd, &password, 256);
@@ -388,23 +376,28 @@ void* gameplay(void* arg){
                 write(fd, "OKchoi", 256);
                 // break;
                 back:
+                __fpurge(stdin);
                 read(fd, &recv_data, 2);
-                recv_data[xxx] = '\0';
                 if(xxx == 0){
-                    break;
+                    goto end;
                 }
+                recv_data[xxx] = '\0';
                 if(strcmp(recv_data, "1") == 0){
-                    printf("Received from client in socket %d: Join waitting-room\n", fd);
+                    printf("Received from client in share-socket %d: Join waitting-room\n", fd);
+                    if(strlen(usename) < 1) goto end;
                     strcat(room, "_");
                     strcat(room, usename);
-                    number_players += 1;
                     if(host[0] == '\0') strcpy(host, usename);
-                    // printf("%s\n", room);
-                    // read(fd, &recv_data, 2);
-                    if(number_players == 10){
+                    if(number_players == 9){
                         write(fd, "maxplayers", 256);
                         goto end;
                     }
+                    if(check_run == 1){
+                        write(fd, "running", 256);
+                        room[0] = '\0';
+                        goto back;
+                    }
+                    number_players += 1;
                     write(fd, room, 256);
                     printf("||Number of players are accessing: %d||\n", number_players);
                     while(1){
@@ -416,6 +409,7 @@ void* gameplay(void* arg){
                         if(strcmp(recv_data, "S") == 0 || strcmp(recv_data, "s") == 0){
                             strcpy(recv_data, "start");
                             write(fd, recv_data, 256);
+                            check_run = 1;
                             start = 1;
                             sleep(t2);
                             check_host = 1;
@@ -446,7 +440,7 @@ void* gameplay(void* arg){
                     break;
                 }
                 else if(strcmp(recv_data, "2") == 0){
-                    printf("Received from client in socket %d: Change password\n", fd);
+                    printf("Received from client in share-socket %d: Change password\n", fd);
                     char new[256];
                     xxx = read(fd, &new, 256);
                     if(xxx == 0) break;
@@ -456,7 +450,7 @@ void* gameplay(void* arg){
                     goto back;
                 }
                 else if(strcmp(recv_data, "3") == 0){
-                    printf("Received from client in socket %d: Show profile\n", fd);
+                    printf("Received from client in share-socket %d: Show profile\n", fd);
                     char information[256];
                     strcat(information, "_");
                     strcat(information, tmp->usename);
@@ -492,7 +486,7 @@ void* gameplay(void* arg){
                     }
                 }
                 else if(strcmp(recv_data, "4") == 0){
-                    printf("Received from client in socket %d: Show leaderboard\n", fd);
+                    printf("Received from client in share-socket %d: Show leaderboard\n", fd);
                     xxx = read(fd, &recv_data, 256);
                     if(xxx == 0) break;
                     if(strcmp(recv_data, "1") == 0){
@@ -579,7 +573,7 @@ void* gameplay(void* arg){
                     }
                 }
                 else if(strcmp(recv_data, "5") == 0){
-                    printf("Received from client in socket %d: Quit game\n", fd);
+                    printf("Received from client in share-socket %d: Quit game\n", fd);
                     if(strcmp(recv_data, "5") == 0){
                         goto end;
                     }
@@ -588,6 +582,7 @@ void* gameplay(void* arg){
         }
         // break;
     }
+    printf("Player %d had connected to game!\n", player_no);
     if(tmp != NULL){
         tmp->status += 1;
         writeFile("nguoidung.txt", l);
@@ -612,12 +607,11 @@ void* gameplay(void* arg){
         start = 0;
         check_host = 0;
     }
-    // free(room);
+
     //Determine player number from file descriptor argument
     end:
     if(number_players != 0) number_players -= 1;
     printf("||Number of players are accessing: %d||\n", number_players);
-    printf("Player %d had connected!\n", player_no);
 
     //Find three consecutive zeros in map for starting snake position
     int head_y, head_x;
@@ -648,7 +642,7 @@ void* gameplay(void* arg){
             pthread_mutex_lock(&map_lock);
             game_map[0][0] = WINNER;
             pthread_mutex_unlock(&map_lock);
-        } else if(game_map[0][0]!= BORDER){
+        } else if(game_map[0][0] != BORDER){
             pthread_mutex_lock(&map_lock);
             game_map[0][0] = someone_won;
             pthread_mutex_unlock(&map_lock);
@@ -685,7 +679,7 @@ void* gameplay(void* arg){
                 }
                 else if((game_map[player_snake->head.y-1][player_snake->head.x] == FRUIT) || 
                     (game_map[player_snake->head.y-1][player_snake->head.x+1] == FRUIT)){
-                    eat_fruit(player_snake, UP);
+                    eat_fruit(player_snake, UP, player_no);
                 }
                 else{
                     move_snake(player_snake, LEFT);
@@ -701,7 +695,7 @@ void* gameplay(void* arg){
                 }
                 else if((game_map[player_snake->head.y+1][player_snake->head.x] == FRUIT) || 
                     (game_map[player_snake->head.y+1][player_snake->head.x+1] == FRUIT)){
-                    eat_fruit(player_snake, DOWN);
+                    eat_fruit(player_snake, DOWN, player_no);
                 }
                 else{
                     move_snake(player_snake, DOWN);
@@ -715,7 +709,7 @@ void* gameplay(void* arg){
                     move_snake(player_snake, LEFT);
                 }
                 else if(game_map[player_snake->head.y][player_snake->head.x-1] == FRUIT){
-                    eat_fruit(player_snake, LEFT);
+                    eat_fruit(player_snake, LEFT, player_no);
 
                 }
                 else{
@@ -730,7 +724,7 @@ void* gameplay(void* arg){
                     move_snake(player_snake, RIGHT);
                 }
                 else if(game_map[player_snake->head.y][player_snake->head.x+1] == FRUIT){
-                    eat_fruit(player_snake, RIGHT);
+                    eat_fruit(player_snake, RIGHT, player_no);
                 }
                 else{
                     move_snake(player_snake, RIGHT);
@@ -747,14 +741,18 @@ void* gameplay(void* arg){
         tmp->win_times += 1;
         writeFile("nguoidung.txt", l);
         kill_snake(player_snake);
+        game_map[HEIGHT+player_no][WIDTH+2] = 0;
         close(fd); 
-        number_players = 0; 
+        number_players = 0;
+        check_run = 0; 
         host[0] = '\0';
         return 0;
     }
     else{
         fprintf(stderr, "Player %d had exited game!\n", player_no);
         kill_snake(player_snake);
+        game_map[HEIGHT+player_no][WIDTH+2] = 0;
+        if(number_players == 0) check_run = 0;
         close(fd);  
         return 0;
     }
@@ -785,7 +783,7 @@ int main(){
         add_fruit();
     for(i = 0; i < 3; i++)
         add_wall();
-    for(i = 0; i < 4; i++)
+    for(i = 0; i < 2; i++)
         add_wall2();
     //Create server socket
     socket_fds[0] = socket(AF_INET, SOCK_STREAM, 0);
@@ -804,7 +802,7 @@ int main(){
             error("ERROR on binding");
 
     //Marking socket as a socket that will be used to accept incoming connection requests  
-    listen(socket_fds[0], 5);
+    listen(socket_fds[0], 9);
     socklen_t clilen = sizeof(socket_addr[0]);
 
     while(1){
