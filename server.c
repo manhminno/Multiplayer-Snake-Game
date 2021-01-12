@@ -327,10 +327,10 @@ void* gameplay(void* arg){
             usename[xxx] = '\0';
             tmp = checkUser(usename, l);
             if(tmp != NULL){
-                write(fd, "NotOK", 10);
+                write(fd, "NotOK", 6);
             }
             else{
-                write(fd, "OK", 10);
+                write(fd, "OK", 3);
                 xxx = read(fd, &password, 256);
                 if(xxx == 0){
                     goto end;
@@ -354,10 +354,10 @@ void* gameplay(void* arg){
             usename[xxx] = '\0';
             tmp = checkUser(usename, l);
             if(tmp == NULL){
-                write(fd, "NotOK", 10);
+                write(fd, "NotOK", 6);
             }
             else{
-                write(fd, "OK", 10);
+                write(fd, "OK", 3);
                 xxx = read(fd, &password, 256);
                 if(xxx == 0){
                     break;
@@ -366,14 +366,14 @@ void* gameplay(void* arg){
                 printf("Receive usename from client in share-socket %d: %s\n", fd, usename);
                 printf("Receive passwork from client in share-socket %d: %s\n", fd, password);
                 while(strcmp(tmp->password, password) != 0){
-                    write(fd, "Password sai!", 256);
+                    write(fd, "Password sai!", 14);
                     xxx = read(fd, &password, 256);
                     if(xxx == 0){
                         break;
                     }
                     password[xxx] = '\0';
                 }
-                write(fd, "OKchoi", 256);
+                write(fd, "OKchoi", 7);
                 // break;
                 back:
                 __fpurge(stdin);
@@ -389,11 +389,11 @@ void* gameplay(void* arg){
                     strcat(room, usename);
                     if(host[0] == '\0') strcpy(host, usename);
                     if(number_players == 9){
-                        write(fd, "maxplayers", 256);
+                        write(fd, "maxplayers", 11);
                         goto end;
                     }
                     if(check_run == 1){
-                        write(fd, "running", 256);
+                        write(fd, "running", 8);
                         room[0] = '\0';
                         goto back;
                     }
