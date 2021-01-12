@@ -420,7 +420,7 @@ void* gameplay(void* arg){
                             write(fd, recv_data, 256);
                             processRoom(room, tmp->usename);
                             if(strlen(room) == 1) room = '\0';
-                            number_players -= 1;
+                            // number_players -= 1;
                             // printf("ssssss\n");
                             goto end;
                             break;

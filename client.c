@@ -600,15 +600,15 @@ int main(int argc, char *argv[]){
     int check_play = sign_to_server(sockfd);
     if(check_play == 0) return 0;
 
-    printf("Tro choi se bat dau sau: 5\n");
+    printf("Game will start after: 5 seconds\n");
     sleep(1);
-    printf("Tro choi se bat dau sau: 4\n");
+    printf("Game will start after: 4 seconds\n");
     sleep(1);
-    printf("Tro choi se bat dau sau: 3\n");
+    printf("Game will start after: 3 seconds\n");
     sleep(1);
-    printf("Tro choi se bat dau sau: 2\n");
+    printf("Game will start after: 2 seconds\n");
     sleep(1);
-    printf("Tro choi se bat dau sau: 1\n");
+    printf("Game will start after: 1 seconds\n");
     sleep(1);
 
 
