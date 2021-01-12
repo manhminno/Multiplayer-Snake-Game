@@ -2,8 +2,8 @@
 
 ## Table of Contents  
 
-#### [Getting started](#usage) 
-#### [Requirement](#reference) 
+#### [Getting started](#headers) 
+#### [Requirement](#requirement) 
 #### [Usage](#usage)
 #### [Reference](#reference)
 #### [Licence](#licence)
