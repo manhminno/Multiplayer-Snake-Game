@@ -1,5 +1,9 @@
-# Multiplayer-Snake-Game
-
+<h1 align="center">Multiplayer-Snake-Game</h1>
+<p align="center">
+  <strong align="center"><i>Simple & Funny!<i></strong>
+</p>
+<p align="center"> <img src="https://github.com/manhminno/Multiplayer-Snake-Game/blob/master/demo.png"></p>
+  
 ## Table of Contents  
 
 #### [Getting started](#headers) 
@@ -51,7 +55,7 @@ On clients run: ./client (ip of server)
 
 ## 4. Reference:
 - <strong><a href="https://soict.hust.edu.vn/can-bo/ts-dang-tuan-linh.html">Teacher: Dr. Dang Tuan Linh</a></strong>
-- <strong><a href="https://soict.hust.edu.vn/can-bo/ts-dang-tuan-linh.html">Multi-threading with TCP/IP</a></strong>
+- <strong><a href="https://dzone.com/articles/parallel-tcpip-socket-server-with-multi-threading">Multi-threading with TCP/IP</a></strong>
 - <strong><a href="https://www.geeksforgeeks.org/socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading/">Socket Programming in C/C++</a></strong>
 <a name="5-licence"/>
 
