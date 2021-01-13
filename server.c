@@ -426,7 +426,7 @@ void* gameplay(void* arg){
                             break;
                         }
                         if(start == 1){
-                            t1 = 0;
+                            t1 = 3;
                             strcpy(recv_data, "start");
                             write(fd, recv_data, 256);
                             break;

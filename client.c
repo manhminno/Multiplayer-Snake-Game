@@ -286,7 +286,8 @@ int sign_to_server(int sockfd){
                                     strcpy(test, "accc");
                                     write(sockfd, test, BUFF_SIZE);
                                 }
-                                read(sockfd, &test, BUFF_SIZE);
+                                int xxx = read(sockfd, &test, BUFF_SIZE);
+                                if(xxx == 0) return 1;
                                 if(strcmp(test, "start") == 0) return 1;
                                 else if(strcmp(test, "quit") == 0) return 0;
                             }
